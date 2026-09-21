@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-slate-950 text-white">
@@ -8,9 +10,12 @@ export default function Home() {
           DigitalDost
         </h1>
 
-        <button className="rounded-lg bg-cyan-500 px-5 py-2 font-semibold text-slate-950">
+        <Link
+          href="/login"
+          className="rounded-lg bg-cyan-500 px-5 py-2 font-semibold text-slate-950 transition hover:bg-cyan-400"
+        >
           Login
-        </button>
+        </Link>
       </nav>
 
       {/* Hero */}
@@ -21,7 +26,9 @@ export default function Home() {
 
         <h2 className="mx-auto max-w-3xl text-5xl font-bold leading-tight">
           Your Digital Life,
-          <span className="text-cyan-400"> Simplified.</span>
+          <span className="text-cyan-400">
+            {" "}Simplified.
+          </span>
         </h2>
 
         <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-400">
@@ -29,9 +36,12 @@ export default function Home() {
           with the help of your personal digital assistant.
         </p>
 
-        <button className="mt-8 rounded-xl bg-cyan-500 px-8 py-3 font-semibold text-slate-950 hover:bg-cyan-400">
+        <Link
+          href="/register"
+          className="mt-8 inline-block rounded-xl bg-cyan-500 px-8 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400"
+        >
           Get Started
-        </button>
+        </Link>
       </section>
 
       {/* Features */}
@@ -67,8 +77,11 @@ export default function Home() {
   );
 }
 
-
-function Feature({ icon, title, description }) {
+function Feature({
+  icon,
+  title,
+  description,
+}) {
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 transition hover:-translate-y-1 hover:border-cyan-500">
 
