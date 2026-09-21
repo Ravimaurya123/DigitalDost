@@ -6,61 +6,67 @@ import { cookies } from "next/headers";
 
 export async function POST(request) {
   try {
-    await connectDB();
-
     const body = await request.json();
 
-    const { email, password } = body;
+    const email = body?.email?.trim().toLowerCase();
+    const password = body?.password;
 
-    // Check fields
     if (!email || !password) {
       return Response.json(
         {
           success: false,
-          message: "Email and password are required",
+          message: "Email and password are required.",
         },
-        { status: 400 }
+        {
+          status: 400,
+        }
       );
     }
 
-    // Find user
+    await connectDB();
+
     const user = await User.findOne({
-      email: email.toLowerCase(),
+      email,
     });
 
     if (!user) {
       return Response.json(
         {
           success: false,
-          message: "Invalid email or password",
+          message: "Invalid email or password.",
         },
-        { status: 401 }
+        {
+          status: 401,
+        }
       );
     }
 
-    // Compare password
-    const isPasswordValid = await bcrypt.compare(
+    const passwordMatch = await bcrypt.compare(
       password,
       user.password
     );
 
-    if (!isPasswordValid) {
+    if (!passwordMatch) {
       return Response.json(
         {
           success: false,
-          message: "Invalid email or password",
+          message: "Invalid email or password.",
         },
-        { status: 401 }
+        {
+          status: 401,
+        }
       );
     }
 
-    // Create JWT
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is not configured.");
+    }
+
     const token = jwt.sign(
       {
         userId: user._id.toString(),
         name: user.name,
         email: user.email,
-        role: user.role,
       },
       process.env.JWT_SECRET,
       {
@@ -68,25 +74,27 @@ export async function POST(request) {
       }
     );
 
-    // Store token in HTTP-only cookie
     const cookieStore = await cookies();
 
-    cookieStore.set("digitaldost_token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
-    });
+    cookieStore.set(
+      "digitaldost_token",
+      token,
+      {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7,
+        path: "/",
+      }
+    );
 
     return Response.json({
       success: true,
-      message: "Login successful",
+      message: `Welcome back, ${user.name}!`,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,
       },
     });
   } catch (error) {
@@ -95,9 +103,11 @@ export async function POST(request) {
     return Response.json(
       {
         success: false,
-        message: "Something went wrong",
+        message: "Login failed.",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }

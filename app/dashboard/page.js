@@ -10,6 +10,7 @@ import Reminder from "@/models/Reminder";
 import ReminderNotification from "@/components/ReminderNotification";
 import AICommandCenter from "@/components/AICommandCenter";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import UserAvatar from "@/components/UserAvatar";
 
 export default async function DashboardPage() {
   // ==========================================
