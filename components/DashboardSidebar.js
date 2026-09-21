@@ -44,6 +44,11 @@ export default function DashboardSidebar() {
       label: "Documents",
     },
     {
+        href: "/calendar",
+        icon: "📅",
+        label: "Calendar",
+    },
+    {
       href: "/settings",
       icon: "⚙️",
       label: "Settings",

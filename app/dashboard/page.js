@@ -12,7 +12,9 @@ import AICommandCenter from "@/components/AICommandCenter";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import Greeting from "@/components/Greeting";
 import ThemeToggle from "@/components/ThemeToggle";
-
+import GlobalSearch from "@/components/GlobalSearch";
+import ProductivityAnalytics from "@/components/ProductivityAnalytics";
+import AIDailyPlanner from "@/components/AIDailyPlanner";
 export default async function DashboardPage() {
   // ==========================================
   // CHECK LOGIN
