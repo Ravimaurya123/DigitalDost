@@ -6,34 +6,32 @@ import Link from "next/link";
 export default function SettingsPage() {
   const [user, setUser] = useState(null);
 
-  const [notifications, setNotifications] =
-    useState(true);
-
+  const [notifications, setNotifications] = useState(true);
   const [emailNotifications, setEmailNotifications] =
     useState(false);
+  const [aiAssistant, setAiAssistant] = useState(true);
+  const [timeFormat, setTimeFormat] = useState("12");
 
-  const [aiAssistant, setAiAssistant] =
-    useState(true);
+  // Theme
+  const [theme, setTheme] = useState("dark");
 
-  const [timeFormat, setTimeFormat] =
-    useState("12");
-
-  const [saved, setSaved] =
-    useState(false);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     loadUser();
     loadSettings();
+    loadTheme();
   }, []);
+
+  // =========================
+  // LOAD USER
+  // =========================
 
   async function loadUser() {
     try {
-      const response = await fetch(
-        "/api/auth/me",
-        {
-          cache: "no-store",
-        }
-      );
+      const response = await fetch("/api/auth/me", {
+        cache: "no-store",
+      });
 
       const data = await response.json();
 
@@ -41,26 +39,25 @@ export default function SettingsPage() {
         setUser(data.user);
       }
     } catch (error) {
-      console.error(
-        "SETTINGS USER ERROR:",
-        error
-      );
+      console.error("SETTINGS USER ERROR:", error);
     }
   }
 
+  // =========================
+  // LOAD SETTINGS
+  // =========================
+
   function loadSettings() {
     try {
-      const stored =
-        localStorage.getItem(
-          "digitaldost-settings"
-        );
+      const stored = localStorage.getItem(
+        "digitaldost-settings"
+      );
 
       if (!stored) {
         return;
       }
 
-      const settings =
-        JSON.parse(stored);
+      const settings = JSON.parse(stored);
 
       setNotifications(
         settings.notifications ?? true
@@ -85,6 +82,69 @@ export default function SettingsPage() {
     }
   }
 
+  // =========================
+  // LOAD THEME
+  // =========================
+
+  function loadTheme() {
+    try {
+      const savedTheme =
+        localStorage.getItem(
+          "digitaldost-theme"
+        );
+
+      if (savedTheme === "light") {
+        setTheme("light");
+
+        document.documentElement.classList.add(
+          "light-mode"
+        );
+      } else {
+        setTheme("dark");
+
+        document.documentElement.classList.remove(
+          "light-mode"
+        );
+      }
+    } catch (error) {
+      console.error(
+        "LOAD THEME ERROR:",
+        error
+      );
+    }
+  }
+
+  // =========================
+  // TOGGLE THEME
+  // =========================
+
+  function toggleTheme() {
+    const html =
+      document.documentElement;
+
+    const newTheme =
+      theme === "dark"
+        ? "light"
+        : "dark";
+
+    if (newTheme === "light") {
+      html.classList.add("light-mode");
+    } else {
+      html.classList.remove("light-mode");
+    }
+
+    localStorage.setItem(
+      "digitaldost-theme",
+      newTheme
+    );
+
+    setTheme(newTheme);
+  }
+
+  // =========================
+  // SAVE SETTINGS
+  // =========================
+
   function saveSettings() {
     const settings = {
       notifications,
@@ -98,6 +158,12 @@ export default function SettingsPage() {
       JSON.stringify(settings)
     );
 
+    // Save theme also
+    localStorage.setItem(
+      "digitaldost-theme",
+      theme
+    );
+
     setSaved(true);
 
     setTimeout(() => {
@@ -105,13 +171,19 @@ export default function SettingsPage() {
     }, 2500);
   }
 
-  const initials =
-    getInitials(user?.name);
+  const initials = getInitials(
+    user?.name
+  );
+
+  const isLightMode =
+    theme === "light";
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
 
-      {/* Header */}
+      {/* =========================
+          HEADER
+      ========================= */}
 
       <header className="border-b border-slate-800 bg-slate-950">
 
@@ -136,13 +208,17 @@ export default function SettingsPage() {
 
       </header>
 
-      {/* Content */}
+      {/* =========================
+          CONTENT
+      ========================= */}
 
       <section className="mx-auto max-w-6xl px-6 py-8">
 
         <div className="grid gap-6 md:grid-cols-2">
 
-          {/* Profile */}
+          {/* =========================
+              PROFILE
+          ========================= */}
 
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 md:col-span-2">
 
@@ -155,13 +231,11 @@ export default function SettingsPage() {
               <div>
 
                 <h2 className="text-xl font-bold text-white">
-                  {user?.name ||
-                    "Loading..."}
+                  {user?.name || "Loading..."}
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-400">
-                  {user?.email ||
-                    "Loading..."}
+                  {user?.email || "Loading..."}
                 </p>
 
                 <p className="mt-2 text-xs text-cyan-400">
@@ -174,7 +248,9 @@ export default function SettingsPage() {
 
           </div>
 
-          {/* Notifications */}
+          {/* =========================
+              NOTIFICATIONS
+          ========================= */}
 
           <SettingCard
             icon="🔔"
@@ -195,14 +271,14 @@ export default function SettingsPage() {
               title="Email Notifications"
               description="Receive important updates by email."
               value={emailNotifications}
-              setValue={
-                setEmailNotifications
-              }
+              setValue={setEmailNotifications}
             />
 
           </SettingCard>
 
-          {/* AI */}
+          {/* =========================
+              AI ASSISTANT
+          ========================= */}
 
           <SettingCard
             icon="🤖"
@@ -232,7 +308,9 @@ export default function SettingsPage() {
 
           </SettingCard>
 
-          {/* Time */}
+          {/* =========================
+              TIME FORMAT
+          ========================= */}
 
           <SettingCard
             icon="🕐"
@@ -262,37 +340,84 @@ export default function SettingsPage() {
 
           </SettingCard>
 
-          {/* Appearance */}
+          {/* =========================
+              APPEARANCE
+          ========================= */}
 
           <SettingCard
-            icon="🌙"
+            icon={isLightMode ? "☀️" : "🌙"}
             title="Appearance"
-            description="DigitalDost interface settings."
+            description="Choose between Light Mode and Dark Mode."
           >
 
-            <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950 p-4">
+            <div className="rounded-xl border border-slate-800 bg-slate-950 p-4">
 
-              <div>
+              <div className="flex items-center justify-between gap-4">
 
-                <p className="text-sm font-semibold text-white">
-                  Dark Mode
-                </p>
+                <div>
 
-                <p className="mt-1 text-xs text-slate-500">
-                  DigitalDost dark theme is active.
-                </p>
+                  <p className="text-sm font-semibold text-white">
+                    {isLightMode
+                      ? "Light Mode"
+                      : "Dark Mode"}
+                  </p>
+
+                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                    {isLightMode
+                      ? "Light theme is currently active."
+                      : "Dark theme is currently active."}
+                  </p>
+
+                </div>
+
+                {/* REAL THEME SWITCH */}
+
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  aria-label="Toggle dark and light mode"
+                  className={`relative h-7 w-14 shrink-0 rounded-full transition-all duration-300 ${
+                    isLightMode
+                      ? "bg-cyan-500"
+                      : "bg-slate-700"
+                  }`}
+                >
+
+                  <span
+                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
+                      isLightMode
+                        ? "left-8"
+                        : "left-1"
+                    }`}
+                  />
+
+                </button>
 
               </div>
 
-              <span className="rounded-lg bg-cyan-500/10 px-3 py-2 text-sm text-cyan-400">
-                ON
-              </span>
+              {/* Current mode */}
+
+              <div className="mt-4 flex items-center justify-between rounded-lg border border-slate-800 px-3 py-2">
+
+                <span className="text-xs text-slate-500">
+                  Current Theme
+                </span>
+
+                <span className="text-xs font-semibold text-cyan-400">
+                  {isLightMode
+                    ? "LIGHT"
+                    : "DARK"}
+                </span>
+
+              </div>
 
             </div>
 
           </SettingCard>
 
-          {/* DigitalDost Features */}
+          {/* =========================
+              DIGITALDOST FEATURES
+          ========================= */}
 
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 md:col-span-2">
 
@@ -352,7 +477,9 @@ export default function SettingsPage() {
 
         </div>
 
-        {/* Save */}
+        {/* =========================
+            SAVE SETTINGS
+        ========================= */}
 
         <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:flex-row sm:items-center sm:justify-between">
 
@@ -385,7 +512,6 @@ export default function SettingsPage() {
     </main>
   );
 }
-
 
 /* =========================
    SETTING CARD
@@ -426,7 +552,6 @@ function SettingCard({
   );
 }
 
-
 /* =========================
    TOGGLE
 ========================= */
@@ -454,9 +579,8 @@ function Toggle({
 
       <button
         type="button"
-        onClick={() =>
-          setValue(!value)
-        }
+        onClick={() => setValue(!value)}
+        aria-label={`Toggle ${title}`}
         className={`relative h-6 w-11 shrink-0 rounded-full transition ${
           value
             ? "bg-cyan-500"
@@ -477,7 +601,6 @@ function Toggle({
     </div>
   );
 }
-
 
 /* =========================
    FEATURE
@@ -506,7 +629,6 @@ function Feature({
     </div>
   );
 }
-
 
 /* =========================
    INITIALS

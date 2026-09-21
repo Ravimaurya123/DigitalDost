@@ -157,3 +157,284 @@ html.light-mode div {
     border-color 0.2s ease,
     color 0.2s ease;
 }
+/* =====================================================
+   DIGITALDOST LIGHT MODE
+===================================================== */
+
+html.light-mode {
+  background: #f8fafc !important;
+}
+
+html.light-mode body {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Main dark backgrounds */
+
+html.light-mode .bg-slate-950 {
+  background-color: #f8fafc !important;
+}
+
+html.light-mode .bg-slate-900 {
+  background-color: #ffffff !important;
+}
+
+html.light-mode .bg-slate-800 {
+  background-color: #f1f5f9 !important;
+}
+
+/* Borders */
+
+html.light-mode .border-slate-800 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light-mode .border-slate-700 {
+  border-color: #cbd5e1 !important;
+}
+
+/* Text */
+
+html.light-mode .text-white {
+  color: #0f172a !important;
+}
+
+html.light-mode .text-slate-200 {
+  color: #1e293b !important;
+}
+
+html.light-mode .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.light-mode .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light-mode .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Hover */
+
+html.light-mode .hover\:bg-slate-800:hover {
+  background-color: #e2e8f0 !important;
+}
+
+html.light-mode .hover\:bg-slate-900:hover {
+  background-color: #f1f5f9 !important;
+}
+
+/* Cyan */
+
+html.light-mode .text-cyan-400 {
+  color: #0891b2 !important;
+}
+
+html.light-mode .text-cyan-500 {
+  color: #0891b2 !important;
+}
+
+/* Buttons */
+
+html.light-mode .bg-cyan-500 {
+  background-color: #06b6d4 !important;
+}
+
+html.light-mode .hover\:bg-cyan-400:hover {
+  background-color: #22d3ee !important;
+}
+
+/* Inputs */
+
+html.light-mode input,
+html.light-mode textarea,
+html.light-mode select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light-mode input::placeholder,
+html.light-mode textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Cards */
+
+html.light-mode .bg-slate-950\/50 {
+  background-color: #f8fafc !important;
+}
+
+html.light-mode .bg-slate-900\/60 {
+  background-color: #ffffff !important;
+}
+
+/* Sidebar */
+
+html.light-mode aside {
+  color: #0f172a;
+}
+
+/* Navigation */
+
+html.light-mode nav {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Footer */
+
+html.light-mode footer {
+  border-color: #e2e8f0 !important;
+}
+
+/* Smooth theme transition */
+
+html,
+body,
+main,
+nav,
+aside,
+section,
+div,
+button,
+input,
+textarea,
+select {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* =====================================================
+   DIGITALDOST LIGHT MODE
+===================================================== */
+
+html.light-mode {
+  background: #f8fafc !important;
+}
+
+html.light-mode body {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Main backgrounds */
+
+html.light-mode .bg-slate-950 {
+  background-color: #f8fafc !important;
+}
+
+html.light-mode .bg-slate-900 {
+  background-color: #ffffff !important;
+}
+
+html.light-mode .bg-slate-800 {
+  background-color: #f1f5f9 !important;
+}
+
+/* Borders */
+
+html.light-mode .border-slate-800 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light-mode .border-slate-700 {
+  border-color: #cbd5e1 !important;
+}
+
+/* Text */
+
+html.light-mode .text-white {
+  color: #0f172a !important;
+}
+
+html.light-mode .text-slate-200 {
+  color: #1e293b !important;
+}
+
+html.light-mode .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.light-mode .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light-mode .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Inputs */
+
+html.light-mode input,
+html.light-mode textarea,
+html.light-mode select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light-mode input::placeholder,
+html.light-mode textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Navigation */
+
+html.light-mode nav {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Header */
+
+html.light-mode header {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Cyan text */
+
+html.light-mode .text-cyan-400 {
+  color: #0891b2 !important;
+}
+
+/* Cyan background */
+
+html.light-mode .bg-cyan-500 {
+  background-color: #06b6d4 !important;
+}
+
+/* Hover */
+
+html.light-mode .hover\:bg-slate-800:hover {
+  background-color: #e2e8f0 !important;
+}
+
+html.light-mode .hover\:bg-slate-900:hover {
+  background-color: #f1f5f9 !important;
+}
+
+/* Smooth transition */
+
+html,
+body,
+main,
+header,
+nav,
+aside,
+section,
+div,
+button,
+input,
+textarea,
+select {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
