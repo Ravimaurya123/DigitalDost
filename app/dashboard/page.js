@@ -11,7 +11,7 @@ import ReminderNotification from "@/components/ReminderNotification";
 import AICommandCenter from "@/components/AICommandCenter";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import UserAvatar from "@/components/UserAvatar";
-
+import Greeting from "@/components/Greeting";
 export default async function DashboardPage() {
   // ==========================================
   // CHECK LOGIN
@@ -296,7 +296,7 @@ export default async function DashboardPage() {
               </p>
 
               <h1 className="text-2xl font-bold sm:text-4xl">
-                Namaste🙏🙏 {user.name}
+                Hello, {user.name}🙏
               </h1>
 
               <p className="mt-2 text-sm text-slate-400 sm:text-base">
