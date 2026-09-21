@@ -7,20 +7,27 @@ export default function SettingsPage() {
   const [user, setUser] = useState(null);
 
   const [notifications, setNotifications] = useState(true);
+
   const [emailNotifications, setEmailNotifications] =
     useState(false);
+
   const [aiAssistant, setAiAssistant] = useState(true);
+
   const [timeFormat, setTimeFormat] = useState("12");
 
-  // Theme
   const [theme, setTheme] = useState("dark");
+
+  const [loading, setLoading] = useState(true);
+
+  const [saving, setSaving] = useState(false);
 
   const [saved, setSaved] = useState(false);
 
+  const [error, setError] = useState("");
+
   useEffect(() => {
-    loadUser();
     loadSettings();
-    loadTheme();
+    loadUser();
   }, []);
 
   // =========================
@@ -44,73 +51,57 @@ export default function SettingsPage() {
   }
 
   // =========================
-  // LOAD SETTINGS
+  // LOAD SETTINGS FROM MONGODB
   // =========================
 
-  function loadSettings() {
+  async function loadSettings() {
     try {
-      const stored = localStorage.getItem(
-        "digitaldost-settings"
-      );
+      setLoading(true);
+      setError("");
 
-      if (!stored) {
-        return;
+      const response = await fetch("/api/settings", {
+        cache: "no-store",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message || "Failed to load settings."
+        );
       }
 
-      const settings = JSON.parse(stored);
+      const settings = data.settings;
 
-      setNotifications(
-        settings.notifications ?? true
-      );
+      setNotifications(settings.notifications);
+      setEmailNotifications(settings.emailNotifications);
+      setAiAssistant(settings.aiAssistant);
+      setTimeFormat(settings.timeFormat);
+      setTheme(settings.theme);
 
-      setEmailNotifications(
-        settings.emailNotifications ?? false
-      );
-
-      setAiAssistant(
-        settings.aiAssistant ?? true
-      );
-
-      setTimeFormat(
-        settings.timeFormat ?? "12"
-      );
+      applyTheme(settings.theme);
     } catch (error) {
-      console.error(
-        "LOAD SETTINGS ERROR:",
-        error
+      console.error("LOAD SETTINGS ERROR:", error);
+
+      setError(
+        error.message || "Failed to load settings."
       );
+    } finally {
+      setLoading(false);
     }
   }
 
   // =========================
-  // LOAD THEME
+  // APPLY THEME
   // =========================
 
-  function loadTheme() {
-    try {
-      const savedTheme =
-        localStorage.getItem(
-          "digitaldost-theme"
-        );
+  function applyTheme(selectedTheme) {
+    const html = document.documentElement;
 
-      if (savedTheme === "light") {
-        setTheme("light");
-
-        document.documentElement.classList.add(
-          "light-mode"
-        );
-      } else {
-        setTheme("dark");
-
-        document.documentElement.classList.remove(
-          "light-mode"
-        );
-      }
-    } catch (error) {
-      console.error(
-        "LOAD THEME ERROR:",
-        error
-      );
+    if (selectedTheme === "light") {
+      html.classList.add("light-mode");
+    } else {
+      html.classList.remove("light-mode");
     }
   }
 
@@ -118,65 +109,117 @@ export default function SettingsPage() {
   // TOGGLE THEME
   // =========================
 
-  function toggleTheme() {
-    const html =
-      document.documentElement;
-
+  async function toggleTheme() {
     const newTheme =
-      theme === "dark"
-        ? "light"
-        : "dark";
+      theme === "dark" ? "light" : "dark";
 
-    if (newTheme === "light") {
-      html.classList.add("light-mode");
-    } else {
-      html.classList.remove("light-mode");
-    }
+    const oldTheme = theme;
 
-    localStorage.setItem(
-      "digitaldost-theme",
-      newTheme
-    );
-
+    // Immediately update UI
     setTheme(newTheme);
+    applyTheme(newTheme);
+    setError("");
+
+    try {
+      const response = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          theme: newTheme,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message || "Failed to save theme."
+        );
+      }
+    } catch (error) {
+      console.error("THEME SAVE ERROR:", error);
+
+      // Revert if database save fails
+      setTheme(oldTheme);
+      applyTheme(oldTheme);
+
+      setError(
+        "Theme could not be saved. Please try again."
+      );
+    }
   }
 
   // =========================
-  // SAVE SETTINGS
+  // SAVE ALL SETTINGS
   // =========================
 
-  function saveSettings() {
-    const settings = {
-      notifications,
-      emailNotifications,
-      aiAssistant,
-      timeFormat,
-    };
-
-    localStorage.setItem(
-      "digitaldost-settings",
-      JSON.stringify(settings)
-    );
-
-    // Save theme also
-    localStorage.setItem(
-      "digitaldost-theme",
-      theme
-    );
-
-    setSaved(true);
-
-    setTimeout(() => {
+  async function saveSettings() {
+    try {
+      setSaving(true);
       setSaved(false);
-    }, 2500);
+      setError("");
+
+      const response = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          theme,
+          notifications,
+          emailNotifications,
+          aiAssistant,
+          timeFormat,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message || "Failed to save settings."
+        );
+      }
+
+      setSaved(true);
+
+      setTimeout(() => {
+        setSaved(false);
+      }, 2500);
+    } catch (error) {
+      console.error("SAVE SETTINGS ERROR:", error);
+
+      setError(
+        error.message || "Failed to save settings."
+      );
+    } finally {
+      setSaving(false);
+    }
   }
 
-  const initials = getInitials(
-    user?.name
-  );
+  const initials = getInitials(user?.name);
 
-  const isLightMode =
-    theme === "light";
+  const isLightMode = theme === "light";
+
+  // =========================
+  // LOADING
+  // =========================
+
+  if (loading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
+        <div className="text-center">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-700 border-t-cyan-400" />
+
+          <p className="mt-4 text-sm text-slate-400">
+            Loading settings...
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
@@ -191,7 +234,7 @@ export default function SettingsPage() {
 
           <Link
             href="/dashboard"
-            className="text-sm text-cyan-400 transition hover:text-cyan-300"
+            className="dd-link text-sm text-cyan-400"
           >
             ← Back to Dashboard
           </Link>
@@ -209,10 +252,18 @@ export default function SettingsPage() {
       </header>
 
       {/* =========================
-          CONTENT
+          MAIN CONTENT
       ========================= */}
 
       <section className="mx-auto max-w-6xl px-6 py-8">
+
+        {/* ERROR */}
+
+        {error && (
+          <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+            {error}
+          </div>
+        )}
 
         <div className="grid gap-6 md:grid-cols-2">
 
@@ -220,11 +271,11 @@ export default function SettingsPage() {
               PROFILE
           ========================= */}
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 md:col-span-2">
+          <div className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-6 md:col-span-2">
 
             <div className="flex items-center gap-5">
 
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-cyan-500 text-xl font-bold text-slate-950">
+              <div className="dd-hover-icon flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-cyan-500 text-xl font-bold text-slate-950">
                 {initials}
               </div>
 
@@ -277,7 +328,7 @@ export default function SettingsPage() {
           </SettingCard>
 
           {/* =========================
-              AI ASSISTANT
+              AI
           ========================= */}
 
           <SettingCard
@@ -293,7 +344,7 @@ export default function SettingsPage() {
               setValue={setAiAssistant}
             />
 
-            <div className="mt-5 rounded-xl border border-cyan-500/10 bg-cyan-500/5 p-4">
+            <div className="dd-card mt-5 rounded-xl border border-cyan-500/10 bg-cyan-500/5 p-4">
 
               <p className="text-sm font-semibold text-cyan-400">
                 AI Command Center
@@ -321,11 +372,9 @@ export default function SettingsPage() {
             <select
               value={timeFormat}
               onChange={(event) =>
-                setTimeFormat(
-                  event.target.value
-                )
+                setTimeFormat(event.target.value)
               }
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
+              className="dd-input w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
             >
 
               <option value="12">
@@ -350,7 +399,7 @@ export default function SettingsPage() {
             description="Choose between Light Mode and Dark Mode."
           >
 
-            <div className="rounded-xl border border-slate-800 bg-slate-950 p-4">
+            <div className="dd-card rounded-xl border border-slate-800 bg-slate-950 p-4">
 
               <div className="flex items-center justify-between gap-4">
 
@@ -370,13 +419,13 @@ export default function SettingsPage() {
 
                 </div>
 
-                {/* REAL THEME SWITCH */}
+                {/* THEME SWITCH */}
 
                 <button
                   type="button"
                   onClick={toggleTheme}
-                  aria-label="Toggle dark and light mode"
-                  className={`relative h-7 w-14 shrink-0 rounded-full transition-all duration-300 ${
+                  aria-label="Toggle theme"
+                  className={`dd-button relative h-7 w-14 shrink-0 rounded-full ${
                     isLightMode
                       ? "bg-cyan-500"
                       : "bg-slate-700"
@@ -384,7 +433,7 @@ export default function SettingsPage() {
                 >
 
                   <span
-                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
+                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-200 ${
                       isLightMode
                         ? "left-8"
                         : "left-1"
@@ -395,8 +444,6 @@ export default function SettingsPage() {
 
               </div>
 
-              {/* Current mode */}
-
               <div className="mt-4 flex items-center justify-between rounded-lg border border-slate-800 px-3 py-2">
 
                 <span className="text-xs text-slate-500">
@@ -404,9 +451,7 @@ export default function SettingsPage() {
                 </span>
 
                 <span className="text-xs font-semibold text-cyan-400">
-                  {isLightMode
-                    ? "LIGHT"
-                    : "DARK"}
+                  {isLightMode ? "LIGHT" : "DARK"}
                 </span>
 
               </div>
@@ -416,16 +461,16 @@ export default function SettingsPage() {
           </SettingCard>
 
           {/* =========================
-              DIGITALDOST FEATURES
+              FEATURES
           ========================= */}
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 md:col-span-2">
+          <div className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-6 md:col-span-2">
 
             <div className="mb-6">
 
               <div className="flex items-center gap-3">
 
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800">
+                <div className="dd-hover-icon flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800">
                   ✨
                 </div>
 
@@ -481,7 +526,7 @@ export default function SettingsPage() {
             SAVE SETTINGS
         ========================= */}
 
-        <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="dd-card mt-8 flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:flex-row sm:items-center sm:justify-between">
 
           <div>
 
@@ -491,7 +536,7 @@ export default function SettingsPage() {
               </p>
             ) : (
               <p className="text-sm text-slate-500">
-                Your preferences are saved on this device.
+                Your preferences are permanently saved to your account.
               </p>
             )}
 
@@ -500,9 +545,10 @@ export default function SettingsPage() {
           <button
             type="button"
             onClick={saveSettings}
-            className="rounded-xl bg-cyan-500 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+            disabled={saving}
+            className="dd-button rounded-xl bg-cyan-500 px-6 py-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Save Settings
+            {saving ? "Saving..." : "Save Settings"}
           </button>
 
         </div>
@@ -513,9 +559,9 @@ export default function SettingsPage() {
   );
 }
 
-/* =========================
+/* =====================================================
    SETTING CARD
-========================= */
+===================================================== */
 
 function SettingCard({
   icon,
@@ -524,11 +570,11 @@ function SettingCard({
   children,
 }) {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+    <div className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-6">
 
       <div className="mb-6 flex items-start gap-4">
 
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-xl">
+        <div className="dd-hover-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-xl">
           {icon}
         </div>
 
@@ -552,9 +598,9 @@ function SettingCard({
   );
 }
 
-/* =========================
+/* =====================================================
    TOGGLE
-========================= */
+===================================================== */
 
 function Toggle({
   title,
@@ -581,18 +627,14 @@ function Toggle({
         type="button"
         onClick={() => setValue(!value)}
         aria-label={`Toggle ${title}`}
-        className={`relative h-6 w-11 shrink-0 rounded-full transition ${
-          value
-            ? "bg-cyan-500"
-            : "bg-slate-700"
+        className={`dd-button relative h-6 w-11 shrink-0 rounded-full ${
+          value ? "bg-cyan-500" : "bg-slate-700"
         }`}
       >
 
         <span
-          className={`absolute top-1 h-4 w-4 rounded-full bg-white transition ${
-            value
-              ? "left-6"
-              : "left-1"
+          className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-all duration-200 ${
+            value ? "left-6" : "left-1"
           }`}
         />
 
@@ -602,9 +644,9 @@ function Toggle({
   );
 }
 
-/* =========================
+/* =====================================================
    FEATURE
-========================= */
+===================================================== */
 
 function Feature({
   icon,
@@ -612,9 +654,9 @@ function Feature({
   text,
 }) {
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-950 p-4">
+    <div className="dd-feature rounded-xl border border-slate-800 bg-slate-950 p-4">
 
-      <div className="text-2xl">
+      <div className="dd-hover-icon text-2xl">
         {icon}
       </div>
 
@@ -630,9 +672,9 @@ function Feature({
   );
 }
 
-/* =========================
+/* =====================================================
    INITIALS
-========================= */
+===================================================== */
 
 function getInitials(name) {
   if (!name) {

@@ -12,6 +12,10 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* =====================================================
+   DEFAULT DARK SYSTEM
+===================================================== */
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -24,29 +28,31 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
 /* =====================================================
    DIGITALDOST LIGHT MODE
 ===================================================== */
 
-html.light-mode,
+html.light-mode {
+  background: #f8fafc !important;
+}
+
 html.light-mode body {
   background: #f8fafc !important;
   color: #0f172a !important;
 }
 
-/* Main background */
+/* =====================================================
+   MAIN BACKGROUNDS
+===================================================== */
 
 html.light-mode .bg-slate-950 {
   background-color: #f8fafc !important;
 }
 
-/* Cards */
-
 html.light-mode .bg-slate-900 {
   background-color: #ffffff !important;
 }
-
-/* Inner cards */
 
 html.light-mode .bg-slate-800 {
   background-color: #f1f5f9 !important;
@@ -56,136 +62,18 @@ html.light-mode .bg-slate-800\/60 {
   background-color: #f1f5f9 !important;
 }
 
-/* Borders */
-
-html.light-mode .border-slate-800 {
-  border-color: #e2e8f0 !important;
-}
-
-html.light-mode .border-slate-700 {
-  border-color: #cbd5e1 !important;
-}
-
-/* Text */
-
-html.light-mode .text-white {
-  color: #0f172a !important;
-}
-
-html.light-mode .text-slate-200 {
-  color: #1e293b !important;
-}
-
-html.light-mode .text-slate-300 {
-  color: #334155 !important;
-}
-
-html.light-mode .text-slate-400 {
-  color: #64748b !important;
-}
-
-html.light-mode .text-slate-500 {
-  color: #64748b !important;
-}
-
-/* Hover */
-
-html.light-mode .hover\:bg-slate-800:hover {
-  background-color: #e2e8f0 !important;
-}
-
-html.light-mode .hover\:bg-slate-900\/80:hover {
+html.light-mode .bg-slate-950\/50 {
   background-color: #f8fafc !important;
 }
 
-/* Header / Navigation */
-
-html.light-mode nav {
-  background-color: #ffffff !important;
-  border-color: #e2e8f0 !important;
-}
-
-/* Links */
-
-html.light-mode .text-cyan-400 {
-  color: #0891b2 !important;
-}
-
-html.light-mode .hover\:text-cyan-300:hover {
-  color: #0e7490 !important;
-}
-
-/* Cyan buttons */
-
-html.light-mode .bg-cyan-500 {
-  background-color: #06b6d4 !important;
-}
-
-html.light-mode .hover\:bg-cyan-400:hover {
-  background-color: #22d3ee !important;
-}
-
-/* Dark mode button */
-
-html.light-mode button.bg-slate-900 {
+html.light-mode .bg-slate-900\/60 {
   background-color: #ffffff !important;
 }
 
-/* Sidebar */
-
-html.light-mode aside {
-  color: #0f172a;
-}
-
-/* Footer */
-
-html.light-mode footer {
-  border-color: #e2e8f0 !important;
-}
-
-/* Smooth transition */
-
-html.light-mode,
-html.light-mode body,
-html.light-mode main,
-html.light-mode nav,
-html.light-mode aside,
-html.light-mode section,
-html.light-mode div {
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
-}
 /* =====================================================
-   DIGITALDOST LIGHT MODE
+   BORDERS
 ===================================================== */
 
-html.light-mode {
-  background: #f8fafc !important;
-}
-
-html.light-mode body {
-  background: #f8fafc !important;
-  color: #0f172a !important;
-}
-
-/* Main dark backgrounds */
-
-html.light-mode .bg-slate-950 {
-  background-color: #f8fafc !important;
-}
-
-html.light-mode .bg-slate-900 {
-  background-color: #ffffff !important;
-}
-
-html.light-mode .bg-slate-800 {
-  background-color: #f1f5f9 !important;
-}
-
-/* Borders */
-
 html.light-mode .border-slate-800 {
   border-color: #e2e8f0 !important;
 }
@@ -194,7 +82,9 @@ html.light-mode .border-slate-700 {
   border-color: #cbd5e1 !important;
 }
 
-/* Text */
+/* =====================================================
+   TEXT
+===================================================== */
 
 html.light-mode .text-white {
   color: #0f172a !important;
@@ -216,17 +106,9 @@ html.light-mode .text-slate-500 {
   color: #64748b !important;
 }
 
-/* Hover */
-
-html.light-mode .hover\:bg-slate-800:hover {
-  background-color: #e2e8f0 !important;
-}
-
-html.light-mode .hover\:bg-slate-900:hover {
-  background-color: #f1f5f9 !important;
-}
-
-/* Cyan */
+/* =====================================================
+   CYAN TEXT
+===================================================== */
 
 html.light-mode .text-cyan-400 {
   color: #0891b2 !important;
@@ -236,7 +118,9 @@ html.light-mode .text-cyan-500 {
   color: #0891b2 !important;
 }
 
-/* Buttons */
+/* =====================================================
+   CYAN BUTTONS
+===================================================== */
 
 html.light-mode .bg-cyan-500 {
   background-color: #06b6d4 !important;
@@ -246,170 +130,9 @@ html.light-mode .hover\:bg-cyan-400:hover {
   background-color: #22d3ee !important;
 }
 
-/* Inputs */
-
-html.light-mode input,
-html.light-mode textarea,
-html.light-mode select {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-  border-color: #cbd5e1 !important;
-}
-
-html.light-mode input::placeholder,
-html.light-mode textarea::placeholder {
-  color: #94a3b8 !important;
-}
-
-/* Cards */
-
-html.light-mode .bg-slate-950\/50 {
-  background-color: #f8fafc !important;
-}
-
-html.light-mode .bg-slate-900\/60 {
-  background-color: #ffffff !important;
-}
-
-/* Sidebar */
-
-html.light-mode aside {
-  color: #0f172a;
-}
-
-/* Navigation */
-
-html.light-mode nav {
-  background-color: #ffffff !important;
-  border-color: #e2e8f0 !important;
-}
-
-/* Footer */
-
-html.light-mode footer {
-  border-color: #e2e8f0 !important;
-}
-
-/* Smooth theme transition */
-
-html,
-body,
-main,
-nav,
-aside,
-section,
-div,
-button,
-input,
-textarea,
-select {
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
-}
-
 /* =====================================================
-   DIGITALDOST LIGHT MODE
+   SLATE HOVERS
 ===================================================== */
-
-html.light-mode {
-  background: #f8fafc !important;
-}
-
-html.light-mode body {
-  background: #f8fafc !important;
-  color: #0f172a !important;
-}
-
-/* Main backgrounds */
-
-html.light-mode .bg-slate-950 {
-  background-color: #f8fafc !important;
-}
-
-html.light-mode .bg-slate-900 {
-  background-color: #ffffff !important;
-}
-
-html.light-mode .bg-slate-800 {
-  background-color: #f1f5f9 !important;
-}
-
-/* Borders */
-
-html.light-mode .border-slate-800 {
-  border-color: #e2e8f0 !important;
-}
-
-html.light-mode .border-slate-700 {
-  border-color: #cbd5e1 !important;
-}
-
-/* Text */
-
-html.light-mode .text-white {
-  color: #0f172a !important;
-}
-
-html.light-mode .text-slate-200 {
-  color: #1e293b !important;
-}
-
-html.light-mode .text-slate-300 {
-  color: #334155 !important;
-}
-
-html.light-mode .text-slate-400 {
-  color: #64748b !important;
-}
-
-html.light-mode .text-slate-500 {
-  color: #64748b !important;
-}
-
-/* Inputs */
-
-html.light-mode input,
-html.light-mode textarea,
-html.light-mode select {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-  border-color: #cbd5e1 !important;
-}
-
-html.light-mode input::placeholder,
-html.light-mode textarea::placeholder {
-  color: #94a3b8 !important;
-}
-
-/* Navigation */
-
-html.light-mode nav {
-  background-color: #ffffff !important;
-  border-color: #e2e8f0 !important;
-}
-
-/* Header */
-
-html.light-mode header {
-  background-color: #ffffff !important;
-  border-color: #e2e8f0 !important;
-}
-
-/* Cyan text */
-
-html.light-mode .text-cyan-400 {
-  color: #0891b2 !important;
-}
-
-/* Cyan background */
-
-html.light-mode .bg-cyan-500 {
-  background-color: #06b6d4 !important;
-}
-
-/* Hover */
 
 html.light-mode .hover\:bg-slate-800:hover {
   background-color: #e2e8f0 !important;
@@ -419,7 +142,80 @@ html.light-mode .hover\:bg-slate-900:hover {
   background-color: #f1f5f9 !important;
 }
 
-/* Smooth transition */
+html.light-mode .hover\:bg-slate-900\/80:hover {
+  background-color: #f8fafc !important;
+}
+
+/* =====================================================
+   CYAN LINK HOVER
+===================================================== */
+
+html.light-mode .hover\:text-cyan-300:hover {
+  color: #0e7490 !important;
+}
+
+/* =====================================================
+   INPUTS
+===================================================== */
+
+html.light-mode input,
+html.light-mode textarea,
+html.light-mode select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light-mode input::placeholder,
+html.light-mode textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+html.light-mode nav {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+html.light-mode header {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* =====================================================
+   SIDEBAR
+===================================================== */
+
+html.light-mode aside {
+  color: #0f172a;
+}
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+html.light-mode footer {
+  border-color: #e2e8f0 !important;
+}
+
+/* =====================================================
+   BUTTONS IN LIGHT MODE
+===================================================== */
+
+html.light-mode button.bg-slate-900 {
+  background-color: #ffffff !important;
+}
+
+/* =====================================================
+   GLOBAL THEME TRANSITION
+===================================================== */
 
 html,
 body,
@@ -437,4 +233,185 @@ select {
     background-color 0.2s ease,
     border-color 0.2s ease,
     color 0.2s ease;
+}
+
+/* =====================================================
+   DIGITALDOST GLOBAL HOVER SYSTEM
+===================================================== */
+
+/* =====================================================
+   CARDS
+===================================================== */
+
+.dd-card {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.dd-card:hover {
+  transform: translateY(-4px);
+
+  border-color: rgba(34, 211, 238, 0.45) !important;
+
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.25),
+    0 0 25px rgba(34, 211, 238, 0.08);
+}
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.dd-button {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.dd-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 22px rgba(34, 211, 238, 0.18);
+}
+
+/* =====================================================
+   LINKS
+===================================================== */
+
+.dd-link {
+  display: inline-flex;
+
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.dd-link:hover {
+  transform: translateX(3px);
+}
+
+/* =====================================================
+   INPUTS
+===================================================== */
+
+.dd-input {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.dd-input:hover {
+  border-color: rgba(34, 211, 238, 0.45) !important;
+}
+
+.dd-input:focus {
+  border-color: rgb(34, 211, 238) !important;
+
+  box-shadow:
+    0 0 0 3px rgba(34, 211, 238, 0.08);
+}
+
+/* =====================================================
+   IMAGES
+===================================================== */
+
+.dd-hover-image {
+  transition:
+    transform 0.35s ease,
+    filter 0.35s ease;
+}
+
+.dd-hover-image:hover {
+  transform: scale(1.03);
+}
+
+/* =====================================================
+   ICONS
+===================================================== */
+
+.dd-hover-icon {
+  transition:
+    transform 0.25s ease,
+    filter 0.25s ease;
+}
+
+.dd-hover-icon:hover {
+  transform: scale(1.12);
+
+  filter:
+    drop-shadow(
+      0 0 8px
+      rgba(34, 211, 238, 0.5)
+    );
+}
+
+/* =====================================================
+   FEATURE CARDS
+===================================================== */
+
+.dd-feature {
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.dd-feature:hover {
+  transform: translateY(-5px);
+
+  border-color: rgba(34, 211, 238, 0.5) !important;
+
+  box-shadow:
+    0 15px 35px rgba(0, 0, 0, 0.22),
+    0 0 25px rgba(34, 211, 238, 0.08);
+}
+
+/* =====================================================
+   LIGHT MODE HOVER EFFECTS
+===================================================== */
+
+html.light-mode .dd-card:hover {
+  border-color: rgba(8, 145, 178, 0.35) !important;
+
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, 0.08),
+    0 0 20px rgba(8, 145, 178, 0.06);
+}
+
+html.light-mode .dd-feature:hover {
+  border-color: rgba(8, 145, 178, 0.4) !important;
+
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, 0.08),
+    0 0 20px rgba(8, 145, 178, 0.06);
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 640px) {
+  .dd-card:hover,
+  .dd-feature:hover {
+    transform: none;
+  }
+
+  .dd-button:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .dd-link:hover {
+    transform: none;
+  }
+
+  .dd-hover-icon:hover {
+    transform: none;
+    filter: none;
+  }
 }

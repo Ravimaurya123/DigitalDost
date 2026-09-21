@@ -52,34 +52,36 @@ export default function DashboardSidebar() {
 
   return (
     <aside className="w-full lg:w-[240px] lg:shrink-0">
-      <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
+
+      <div className="dd-card overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
 
         {/* Mobile Menu Button */}
 
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className="flex w-full items-center justify-between px-5 py-4 lg:hidden"
+          className="dd-button flex w-full items-center justify-between px-5 py-4 lg:hidden"
         >
           <div className="flex items-center gap-3">
-            <span className="text-lg">
+
+            <span className="dd-hover-icon text-lg">
               ☰
             </span>
 
             <span className="font-semibold text-white">
               Menu
             </span>
+
           </div>
 
           <span
-            className={`text-slate-400 transition-transform ${
-              open
-                ? "rotate-180"
-                : ""
+            className={`text-slate-400 transition-transform duration-200 ${
+              open ? "rotate-180" : ""
             }`}
           >
             ▼
           </span>
+
         </button>
 
         {/* Desktop */}
@@ -111,9 +113,7 @@ export default function DashboardSidebar() {
 
             <SidebarLinks
               menuItems={menuItems}
-              onNavigate={() =>
-                setOpen(false)
-              }
+              onNavigate={() => setOpen(false)}
             />
 
             <div className="mt-4 border-t border-slate-800 pt-4">
@@ -124,6 +124,7 @@ export default function DashboardSidebar() {
         )}
 
       </div>
+
     </aside>
   );
 }
@@ -140,15 +141,17 @@ function SidebarLinks({
           key={item.href}
           href={item.href}
           onClick={onNavigate}
-          className="flex items-center gap-3 rounded-xl px-3 py-3 text-slate-300 transition hover:bg-slate-800 hover:text-white"
+          className="dd-link flex w-full items-center gap-3 rounded-xl px-3 py-3 text-slate-300 transition-all duration-200 hover:bg-slate-800 hover:text-white"
         >
-          <span className="w-6 text-center">
+
+          <span className="dd-hover-icon w-6 text-center">
             {item.icon}
           </span>
 
           <span>
             {item.label}
           </span>
+
         </Link>
       ))}
 

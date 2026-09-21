@@ -210,23 +210,26 @@ export default function TasksPage() {
     <main className="min-h-screen bg-slate-950 text-white">
       <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
+
           <Link
             href="/dashboard"
-            className="text-2xl font-bold"
+            className="dd-link text-2xl font-bold"
           >
             Digital<span className="text-cyan-400">Dost</span>
           </Link>
 
           <Link
             href="/dashboard"
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
+            className="dd-button rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
           >
             ← Dashboard
           </Link>
+
         </div>
       </header>
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-10">
+
         <div className="mb-8">
           <p className="text-sm font-medium uppercase tracking-wider text-cyan-400">
             Productivity
@@ -242,18 +245,19 @@ export default function TasksPage() {
         </div>
 
         {error && (
-          <div className="mb-5 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+          <div className="dd-card mb-5 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="mb-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-400">
+          <div className="dd-card mb-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-400">
             {success}
           </div>
         )}
 
         <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+
           <StatCard
             label="Total"
             value={tasks.length}
@@ -277,10 +281,13 @@ export default function TasksPage() {
             value={overdueCount}
             icon="⚠️"
           />
+
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[350px_1fr]">
-          <section className="h-fit rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+
+          <section className="dd-card h-fit rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+
             <div className="mb-5">
               <h2 className="text-xl font-semibold">
                 Create New Task
@@ -295,6 +302,7 @@ export default function TasksPage() {
               onSubmit={addTask}
               className="space-y-4"
             >
+
               <div>
                 <label className="mb-2 block text-sm text-slate-300">
                   Task title
@@ -304,7 +312,7 @@ export default function TasksPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Complete DSA practice"
-                  className="w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/50"
+                  className="dd-input w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/50"
                 />
               </div>
 
@@ -320,7 +328,7 @@ export default function TasksPage() {
                   }
                   placeholder="Add some details..."
                   rows={4}
-                  className="w-full resize-none rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/50"
+                  className="dd-input w-full resize-none rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/50"
                 />
               </div>
 
@@ -334,7 +342,7 @@ export default function TasksPage() {
                   onChange={(e) =>
                     setPriority(e.target.value)
                   }
-                  className="w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400/50"
+                  className="dd-input w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400/50"
                 >
                   <option value="Low">Low</option>
                   <option value="Medium">Medium</option>
@@ -353,32 +361,36 @@ export default function TasksPage() {
                   onChange={(e) =>
                     setDueDate(e.target.value)
                   }
-                  className="w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400/50"
+                  className="dd-input w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400/50"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full rounded-xl bg-cyan-500 px-4 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
+                className="dd-button w-full rounded-xl bg-cyan-500 px-4 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving ? "Creating..." : "+ Create Task"}
               </button>
+
             </form>
           </section>
 
           <section>
+
             <div className="mb-5 flex flex-col gap-3">
+
               <input
                 value={search}
                 onChange={(e) =>
                   setSearch(e.target.value)
                 }
                 placeholder="🔍 Search tasks..."
-                className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-400/40"
+                className="dd-input w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-400/40"
               />
 
               <div className="flex gap-2 overflow-x-auto pb-1">
+
                 {[
                   ["all", "All"],
                   ["pending", "Pending"],
@@ -386,10 +398,11 @@ export default function TasksPage() {
                   ["high", "High Priority"],
                   ["overdue", "Overdue"],
                 ].map(([value, label]) => (
+
                   <button
                     key={value}
                     onClick={() => setFilter(value)}
-                    className={`whitespace-nowrap rounded-xl px-4 py-2 text-sm transition ${
+                    className={`dd-button whitespace-nowrap rounded-xl px-4 py-2 text-sm transition ${
                       filter === value
                         ? "bg-cyan-500 text-slate-950"
                         : "border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
@@ -397,8 +410,11 @@ export default function TasksPage() {
                   >
                     {label}
                   </button>
+
                 ))}
+
               </div>
+
             </div>
 
             {loading ? (
@@ -414,22 +430,27 @@ export default function TasksPage() {
                 }
               />
             ) : (
+
               <div className="space-y-3">
+
                 {filteredTasks.map((task) => (
+
                   <div
                     key={task._id}
-                    className={`rounded-2xl border p-4 transition sm:p-5 ${
+                    className={`dd-card rounded-2xl border p-4 transition sm:p-5 ${
                       task.completed
                         ? "border-emerald-500/10 bg-emerald-500/[0.03]"
                         : "border-white/10 bg-white/[0.04] hover:border-cyan-400/20"
                     }`}
                   >
+
                     <div className="flex gap-3 sm:gap-4">
+
                       <button
                         onClick={() =>
                           toggleTask(task)
                         }
-                        className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs transition ${
+                        className={`dd-hover-icon mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs transition ${
                           task.completed
                             ? "border-emerald-400 bg-emerald-400 text-slate-950"
                             : "border-slate-600 hover:border-cyan-400"
@@ -439,8 +460,11 @@ export default function TasksPage() {
                       </button>
 
                       <div className="min-w-0 flex-1">
+
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+
                           <div className="min-w-0">
+
                             <h3
                               className={`break-words font-semibold ${
                                 task.completed
@@ -456,18 +480,21 @@ export default function TasksPage() {
                                 {task.description}
                               </p>
                             )}
+
                           </div>
 
                           <span
-                            className={`w-fit shrink-0 rounded-full border px-3 py-1 text-xs font-medium ${getPriorityClass(
+                            className={`dd-hover-icon w-fit shrink-0 rounded-full border px-3 py-1 text-xs font-medium ${getPriorityClass(
                               task.priority
                             )}`}
                           >
                             {task.priority}
                           </span>
+
                         </div>
 
                         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+
                           <div
                             className={`text-xs ${
                               isOverdue(task)
@@ -484,55 +511,85 @@ export default function TasksPage() {
                             onClick={() =>
                               deleteTask(task)
                             }
-                            className="rounded-lg px-3 py-2 text-xs text-red-400 transition hover:bg-red-500/10"
+                            className="dd-button rounded-lg px-3 py-2 text-xs text-red-400 transition hover:bg-red-500/10"
                           >
                             Delete
                           </button>
+
                         </div>
+
                       </div>
+
                     </div>
+
                   </div>
+
                 ))}
+
               </div>
+
             )}
+
           </section>
+
         </div>
+
       </section>
+
     </main>
   );
 }
 
 function StatCard({ label, value, icon }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-      <div className="mb-3 text-xl">{icon}</div>
-      <p className="text-xs text-slate-500">{label}</p>
+    <div className="dd-card rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+
+      <div className="dd-hover-icon mb-3 text-xl">
+        {icon}
+      </div>
+
+      <p className="text-xs text-slate-500">
+        {label}
+      </p>
+
       <p className="mt-1 text-2xl font-bold text-white">
         {value}
       </p>
+
     </div>
   );
 }
 
 function LoadingState({ text }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center">
+    <div className="dd-card rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center">
+
       <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
-      <p className="text-sm text-slate-400">{text}</p>
+
+      <p className="text-sm text-slate-400">
+        {text}
+      </p>
+
     </div>
   );
 }
 
 function EmptyState({ icon, title, text }) {
   return (
-    <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.03] p-10 text-center">
-      <div className="mb-4 text-4xl">{icon}</div>
+    <div className="dd-card rounded-3xl border border-dashed border-white/10 bg-white/[0.03] p-10 text-center">
+
+      <div className="dd-hover-icon mb-4 text-4xl">
+        {icon}
+      </div>
+
       <h2 className="text-lg font-semibold text-white">
         {title}
       </h2>
+
       <p className="mx-auto mt-2 max-w-sm text-sm text-slate-500">
         {text}
       </p>
+
     </div>
   );
 }
