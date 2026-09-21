@@ -4,14 +4,248 @@ import connectDB from "@/lib/mongodb";
 import Task from "@/models/Task";
 import Reminder from "@/models/Reminder";
 import Note from "@/models/Note";
+import AICommand from "@/models/AICommand";
 
 import { askAI } from "@/lib/ai";
+import jwt from "jsonwebtoken";
+
+/*
+==================================================
+DATE HELPER
+==================================================
+*/
+
+function getDateFromText(dateText) {
+  if (!dateText) return null;
+
+  const now = new Date();
+  const text = dateText.toLowerCase().trim();
+
+  function applyTime(date) {
+    const timeMatch = text.match(
+      /(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i
+    );
+
+    if (timeMatch) {
+      let hour = Number(timeMatch[1]);
+      const minute = Number(timeMatch[2] || 0);
+      const meridiem = timeMatch[3].toLowerCase();
+
+      if (meridiem === "pm" && hour !== 12) {
+        hour += 12;
+      }
+
+      if (meridiem === "am" && hour === 12) {
+        hour = 0;
+      }
+
+      date.setHours(hour, minute, 0, 0);
+    }
+
+    return date;
+  }
+
+  /*
+  Day after tomorrow
+  */
+
+  if (text.includes("day after tomorrow")) {
+    const date = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 2
+    );
+
+    return applyTime(date);
+  }
+
+  /*
+  Tomorrow
+  */
+
+  if (text.includes("tomorrow")) {
+    const date = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 1
+    );
+
+    return applyTime(date);
+  }
+
+  /*
+  Today
+  */
+
+  if (text.includes("today")) {
+    const date = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+
+    return applyTime(date);
+  }
+
+  /*
+  Direct JavaScript date
+  */
+
+  const parsedDate = new Date(dateText);
+
+  if (!isNaN(parsedDate.getTime())) {
+    return parsedDate;
+  }
+
+  return null;
+}
+
+/*
+==================================================
+REGEX HELPER
+==================================================
+*/
+
+function escapeRegex(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/*
+==================================================
+AI HISTORY HELPER
+==================================================
+*/
+
+async function saveAIHistory({
+  userId,
+  command,
+  action,
+  status = "success",
+  response = "",
+}) {
+  try {
+    await AICommand.create({
+      userId,
+      command,
+      action,
+      status,
+      response,
+    });
+  } catch (error) {
+    console.error("AI HISTORY SAVE ERROR:", error);
+  }
+}
+
+/*
+==================================================
+CREATE DELETE CONFIRMATION TOKEN
+==================================================
+*/
+
+function createDeleteConfirmationToken({
+  userId,
+  action,
+  itemId,
+}) {
+  return jwt.sign(
+    {
+      type: "delete_confirmation",
+      userId: String(userId),
+      action,
+      itemId: String(itemId),
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "5m",
+    }
+  );
+}
+
+/*
+==================================================
+VERIFY DELETE CONFIRMATION TOKEN
+==================================================
+*/
+
+function verifyDeleteConfirmationToken(token) {
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
+    if (
+      decoded.type !== "delete_confirmation" ||
+      !decoded.userId ||
+      !decoded.action ||
+      !decoded.itemId
+    ) {
+      return null;
+    }
+
+    return decoded;
+  } catch (error) {
+    console.error(
+      "DELETE CONFIRMATION TOKEN ERROR:",
+      error
+    );
+
+    return null;
+  }
+}
+
+/*
+==================================================
+DELETE EXACT ITEM
+==================================================
+*/
+
+async function deleteExactItem({
+  userId,
+  action,
+  itemId,
+}) {
+  let deletedItem = null;
+
+  if (action === "delete_task") {
+    deletedItem = await Task.findOneAndDelete({
+      _id: itemId,
+      userId,
+    });
+  }
+
+  if (action === "delete_reminder") {
+    deletedItem = await Reminder.findOneAndDelete({
+      _id: itemId,
+      userId,
+    });
+  }
+
+  if (action === "delete_note") {
+    deletedItem = await Note.findOneAndDelete({
+      _id: itemId,
+      userId,
+    });
+  }
+
+  return deletedItem;
+}
+
+/*
+==================================================
+POST
+==================================================
+*/
 
 export async function POST(request) {
+  let command = "";
+
   try {
-    // ==========================================
-    // CHECK LOGIN
-    // ==========================================
+    /*
+    ==========================================
+    AUTHENTICATION
+    ==========================================
+    */
 
     const user = await getCurrentUser();
 
@@ -27,13 +261,157 @@ export async function POST(request) {
       );
     }
 
-    // ==========================================
-    // GET COMMAND
-    // ==========================================
+    /*
+    ==========================================
+    REQUEST BODY
+    ==========================================
+    */
 
     const body = await request.json();
 
-    const command = body.command?.trim();
+    command = body.command?.trim();
+
+    const confirmed = body.confirmed === true;
+
+    const confirmationToken =
+      body.confirmationToken?.trim();
+
+    /*
+    ==========================================
+    EXACT DELETE CONFIRMATION
+    ==========================================
+    */
+
+    if (confirmed && confirmationToken) {
+      await connectDB();
+
+      const decoded =
+        verifyDeleteConfirmationToken(
+          confirmationToken
+        );
+
+      if (!decoded) {
+        return Response.json(
+          {
+            success: false,
+            message:
+              "This delete confirmation has expired or is invalid. Please try the delete command again.",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+
+      /*
+      Make sure token belongs to logged-in user
+      */
+
+      if (
+        String(decoded.userId) !==
+        String(user.userId)
+      ) {
+        return Response.json(
+          {
+            success: false,
+            message:
+              "Invalid delete confirmation.",
+          },
+          {
+            status: 403,
+          }
+        );
+      }
+
+      /*
+      Only allow delete actions
+      */
+
+      const allowedActions = [
+        "delete_task",
+        "delete_reminder",
+        "delete_note",
+      ];
+
+      if (
+        !allowedActions.includes(decoded.action)
+      ) {
+        return Response.json(
+          {
+            success: false,
+            message:
+              "Invalid delete confirmation action.",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+
+      /*
+      Delete exact identified item
+      */
+
+      const deletedItem =
+        await deleteExactItem({
+          userId: user.userId,
+          action: decoded.action,
+          itemId: decoded.itemId,
+        });
+
+      if (!deletedItem) {
+        return Response.json(
+          {
+            success: false,
+            message:
+              "The item no longer exists or could not be deleted.",
+          },
+          {
+            status: 404,
+          }
+        );
+      }
+
+      let itemName = "Item";
+
+      if (deletedItem.title) {
+        itemName = deletedItem.title;
+      }
+
+      const message =
+        `${decoded.action.replace(
+          "delete_",
+          ""
+        )} "${itemName}" deleted successfully.`;
+
+      await saveAIHistory({
+        userId: user.userId,
+        command:
+          command ||
+          `Confirmed ${decoded.action}`,
+        action: decoded.action,
+        status: "success",
+        response: message,
+      });
+
+      return Response.json({
+        success: true,
+        message,
+        results: [
+          {
+            success: true,
+            action: decoded.action,
+            message,
+          },
+        ],
+      });
+    }
+
+    /*
+    ==========================================
+    NORMAL COMMAND VALIDATION
+    ==========================================
+    */
 
     if (!command) {
       return Response.json(
@@ -47,241 +425,223 @@ export async function POST(request) {
       );
     }
 
-    // ==========================================
-    // CURRENT DATE
-    // ==========================================
+    /*
+    ==========================================
+    DATABASE
+    ==========================================
+    */
 
-    const currentDate = new Date().toISOString();
+    await connectDB();
 
-    // ==========================================
-    // AI COMMAND PARSER
-    // ==========================================
+    /*
+    ==========================================
+    AI COMMAND PROMPT
+    ==========================================
+    */
 
     const prompt = `
-You are the command parser for DigitalDost.
+You are DigitalDost AI Command Parser.
 
-Understand the user's natural language command.
+Convert the user's natural language command into JSON.
+
+A single user command may contain ONE OR MULTIPLE actions.
 
 Supported actions:
 
-CREATE:
-1. create_task
-2. create_reminder
-3. create_note
+create_task
+create_reminder
+create_note
+update_task
+update_reminder
+update_note
+delete_task
+delete_reminder
+delete_note
+complete_task
+complete_reminder
+search_tasks
+search_reminders
+search_notes
 
-UPDATE:
-4. update_task
-5. update_reminder
-6. update_note
+IMPORTANT:
 
-DELETE:
-7. delete_task
-8. delete_reminder
-9. delete_note
+Always return an object containing an "actions" array.
 
-COMPLETE:
-10. complete_task
-11. complete_reminder
-
-SEARCH:
-12. search_tasks
-13. search_reminders
-14. search_notes
-
-Return ONLY valid JSON.
-
-==========================================
-CREATE TASK
-==========================================
+Example:
 
 {
-  "action": "create_task",
-  "title": "Complete DSA",
-  "description": "",
-  "priority": "Medium",
-  "dueDate": null
+  "actions": [
+    {
+      "action": "create_task",
+      "title": "Study Java",
+      "description": "",
+      "content": "",
+      "date": "tomorrow",
+      "priority": "Medium",
+      "search": ""
+    },
+    {
+      "action": "create_reminder",
+      "title": "Study Java",
+      "description": "",
+      "content": "",
+      "date": "tomorrow 7 PM",
+      "priority": "Medium",
+      "search": ""
+    }
+  ]
 }
 
-==========================================
-CREATE REMINDER
-==========================================
+Rules:
 
-{
-  "action": "create_reminder",
-  "title": "Study Java",
-  "description": "",
-  "reminderDate": "2026-09-22T10:00:00.000Z"
-}
+1. The "actions" array can contain one or multiple actions.
 
-==========================================
-CREATE NOTE
-==========================================
+2. For tasks use:
+   - title
+   - description
+   - date
+   - priority
 
-{
-  "action": "create_note",
-  "title": "DigitalDost",
-  "content": "Project information"
-}
+3. For reminders use:
+   - title
+   - description
+   - date
 
-==========================================
-UPDATE TASK
-==========================================
+4. For notes use:
+   - title
+   - content
 
-{
-  "action": "update_task",
-  "search": "DSA",
-  "title": null,
-  "description": null,
-  "priority": "High",
-  "dueDate": null
-}
+5. Priority must be:
+   Low
+   Medium
+   High
 
-==========================================
-UPDATE REMINDER
-==========================================
+6. If task priority is not mentioned, use Medium.
 
-{
-  "action": "update_reminder",
-  "search": "Java",
-  "title": null,
-  "description": null,
-  "reminderDate": "2026-09-22T10:00:00.000Z"
-}
+7. Understand natural language dates:
+   - today
+   - tomorrow
+   - day after tomorrow
 
-==========================================
-UPDATE NOTE
-==========================================
+8. Understand times:
+   - 5 PM
+   - 10 AM
+   - 6:30 PM
+   - tomorrow 7 PM
+   - today 10 AM
 
-{
-  "action": "update_note",
-  "search": "DigitalDost",
-  "title": null,
-  "content": "Updated project information"
-}
+9. For search commands use:
+   - search
 
-==========================================
-DELETE
-==========================================
+10. For update commands:
+   - title means the existing item's title.
 
-For deleting a task:
+11. For complete commands:
+   - title means the existing item's title.
 
-{
-  "action": "delete_task",
-  "search": "DSA"
-}
+12. For delete commands:
+   - title means the existing item's title.
 
-For deleting a reminder:
+13. Do not create IDs.
 
-{
-  "action": "delete_reminder",
-  "search": "Java"
-}
+14. Do not add explanations outside JSON.
 
-For deleting a note:
+15. If the user asks for multiple actions, create a separate object inside the actions array for each action.
 
-{
-  "action": "delete_note",
-  "search": "DigitalDost"
-}
+16. Preserve the user's requested title, description, note content and search text as accurately as possible.
 
-==========================================
-COMPLETE
-==========================================
+17. Do not merge multiple requested actions into one action.
 
-For completing a task:
-
-{
-  "action": "complete_task",
-  "search": "DSA"
-}
-
-For completing a reminder:
-
-{
-  "action": "complete_reminder",
-  "search": "Java"
-}
-
-==========================================
-SEARCH
-==========================================
-
-For tasks:
-
-{
-  "action": "search_tasks",
-  "search": "DSA"
-}
-
-For reminders:
-
-{
-  "action": "search_reminders",
-  "search": "Java"
-}
-
-For notes:
-
-{
-  "action": "search_notes",
-  "search": "DigitalDost"
-}
-
-==========================================
-IMPORTANT RULES
-==========================================
-
-- Use the user's exact intention.
-- Keep search short and meaningful.
-- Never invent database IDs.
-- Search should use words from the user's command.
-- Priority must be Low, Medium or High.
-- If priority is not mentioned, use Medium.
-- If no date is mentioned, use null.
-- For dates use valid ISO date strings.
-- "today" means today's date.
-- "tomorrow" means tomorrow's date.
-- "yesterday" means yesterday's date.
-- If a reminder date has no time, use 9:00 AM.
-- If a task date has no time, use 11:59 PM.
-- Return ONLY JSON.
-- No markdown.
-- No explanation.
-
-Current date and time:
-${currentDate}
+18. Return ONLY valid JSON.
 
 User command:
+
 ${command}
 `;
 
-    // ==========================================
-    // ASK AI
-    // ==========================================
+    /*
+    ==========================================
+    ASK GEMINI
+    ==========================================
+    */
 
-    const aiResponse = await askAI(prompt);
-
-    // ==========================================
-    // PARSE AI RESPONSE
-    // ==========================================
-
-    let parsedCommand;
+    let aiResponse;
 
     try {
-      let cleanedResponse = aiResponse.trim();
-
-      if (cleanedResponse.startsWith("```")) {
-        cleanedResponse = cleanedResponse
-          .replace(/^```json/i, "")
-          .replace(/^```/i, "")
-          .replace(/```$/i, "")
-          .trim();
-      }
-
-      parsedCommand = JSON.parse(cleanedResponse);
+      aiResponse = await askAI(prompt);
     } catch (error) {
       console.error(
-        "AI COMMAND JSON ERROR:",
+        "AI COMMAND GEMINI ERROR:",
+        error
+      );
+
+      const message =
+        error?.message ||
+        "Gemini AI is currently unavailable.";
+
+      await saveAIHistory({
+        userId: user.userId,
+        command,
+        action: "ai_error",
+        status: "failed",
+        response: message,
+      });
+
+      const isQuotaError =
+        error?.status === 429 ||
+        message
+          .toLowerCase()
+          .includes("quota") ||
+        message
+          .toLowerCase()
+          .includes("rate limit") ||
+        message
+          .toLowerCase()
+          .includes("resource_exhausted");
+
+      return Response.json(
+        {
+          success: false,
+          message: isQuotaError
+            ? "Gemini API quota has been exceeded. Please try again after the quota resets."
+            : message,
+        },
+        {
+          status: isQuotaError ? 429 : 500,
+        }
+      );
+    }
+
+    /*
+    ==========================================
+    PARSE AI RESPONSE
+    ==========================================
+    */
+
+    let parsed;
+
+    try {
+      if (
+        !aiResponse ||
+        typeof aiResponse !== "string"
+      ) {
+        throw new Error(
+          "Empty AI response."
+        );
+      }
+
+      const cleanedResponse =
+        aiResponse
+          .replace(/```json/gi, "")
+          .replace(/```/g, "")
+          .trim();
+
+      parsed = JSON.parse(
+        cleanedResponse
+      );
+    } catch (error) {
+      console.error(
+        "AI PARSE ERROR:",
         error
       );
 
@@ -290,11 +650,20 @@ ${command}
         aiResponse
       );
 
+      await saveAIHistory({
+        userId: user.userId,
+        command,
+        action: "parse_error",
+        status: "failed",
+        response:
+          "Could not understand the AI response.",
+      });
+
       return Response.json(
         {
           success: false,
           message:
-            "I could not understand that command.",
+            "Could not understand the command.",
         },
         {
           status: 400,
@@ -302,648 +671,1098 @@ ${command}
       );
     }
 
-    // ==========================================
-    // DATABASE
-    // ==========================================
+    /*
+    ==========================================
+    ACTIONS ARRAY
+    ==========================================
+    */
 
-    await connectDB();
+    let actions = [];
 
-    // ==========================================
-    // CREATE TASK
-    // ==========================================
-
-    if (parsedCommand.action === "create_task") {
-      if (!parsedCommand.title?.trim()) {
-        return Response.json(
-          {
-            success: false,
-            message: "Task title is required.",
-          },
-          {
-            status: 400,
-          }
-        );
-      }
-
-      let dueDate = null;
-
-      if (parsedCommand.dueDate) {
-        const date = new Date(
-          parsedCommand.dueDate
-        );
-
-        if (!isNaN(date.getTime())) {
-          dueDate = date;
-        }
-      }
-
-      const priority = [
-        "Low",
-        "Medium",
-        "High",
-      ].includes(parsedCommand.priority)
-        ? parsedCommand.priority
-        : "Medium";
-
-      const task = await Task.create({
-        userId: user.userId,
-        title: parsedCommand.title.trim(),
-        description:
-          parsedCommand.description?.trim() || "",
-        priority,
-        dueDate,
-        completed: false,
-      });
-
-      return Response.json({
-        success: true,
-        message: `Task "${task.title}" created successfully.`,
-        type: "task",
-      });
-    }
-
-    // ==========================================
-    // CREATE REMINDER
-    // ==========================================
+    /*
+    New format
+    */
 
     if (
-      parsedCommand.action ===
-      "create_reminder"
+      Array.isArray(parsed.actions)
     ) {
-      if (!parsedCommand.title?.trim()) {
-        return Response.json(
-          {
+      actions = parsed.actions;
+    }
+
+    /*
+    Backward compatibility
+    */
+
+    else if (parsed.action) {
+      actions = [parsed];
+    }
+
+    if (actions.length === 0) {
+      await saveAIHistory({
+        userId: user.userId,
+        command,
+        action: "unknown",
+        status: "failed",
+        response:
+          "AI could not identify any command.",
+      });
+
+      return Response.json(
+        {
+          success: false,
+          message:
+            "AI could not identify the command.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    /*
+    ==========================================
+    RESULTS
+    ==========================================
+    */
+
+    const results = [];
+
+    /*
+    ==========================================
+    PROCESS EVERY ACTION
+    ==========================================
+    */
+
+    for (const item of actions) {
+      const action = item.action?.trim();
+
+      if (!action) {
+        results.push({
+          success: false,
+          action: "unknown",
+          message: "Invalid action.",
+        });
+
+        continue;
+      }
+
+      /*
+      ========================================
+      CREATE TASK
+      ========================================
+      */
+
+      if (action === "create_task") {
+        if (!item.title) {
+          results.push({
             success: false,
+            action,
+            message:
+              "Task title is required.",
+          });
+
+          continue;
+        }
+
+        const dueDate =
+          getDateFromText(item.date);
+
+        const task =
+          await Task.create({
+            userId: user.userId,
+            title: item.title,
+            description:
+              item.description || "",
+            priority:
+              [
+                "Low",
+                "Medium",
+                "High",
+              ].includes(
+                item.priority
+              )
+                ? item.priority
+                : "Medium",
+            dueDate,
+          });
+
+        results.push({
+          success: true,
+          action,
+          message:
+            `Task "${task.title}" created successfully.`,
+          task,
+        });
+
+        continue;
+      }
+
+      /*
+      ========================================
+      CREATE REMINDER
+      ========================================
+      */
+
+      if (
+        action ===
+        "create_reminder"
+      ) {
+        if (!item.title) {
+          results.push({
+            success: false,
+            action,
             message:
               "Reminder title is required.",
-          },
-          {
-            status: 400,
-          }
-        );
-      }
+          });
 
-      const reminderDate = new Date(
-        parsedCommand.reminderDate
-      );
+          continue;
+        }
 
-      if (isNaN(reminderDate.getTime())) {
-        return Response.json(
-          {
+        const reminderDate =
+          getDateFromText(
+            item.date
+          );
+
+        if (!reminderDate) {
+          results.push({
             success: false,
+            action,
             message:
-              "Invalid reminder date.",
-          },
-          {
-            status: 400,
-          }
-        );
-      }
+              "Please provide a valid reminder date/time.",
+          });
 
-      const reminder =
-        await Reminder.create({
-          userId: user.userId,
-          title: parsedCommand.title.trim(),
-          description:
-            parsedCommand.description?.trim() || "",
-          reminderDate,
-          completed: false,
+          continue;
+        }
+
+        const reminder =
+          await Reminder.create({
+            userId: user.userId,
+            title: item.title,
+            description:
+              item.description || "",
+            reminderDate,
+          });
+
+        results.push({
+          success: true,
+          action,
+          message:
+            `Reminder "${reminder.title}" created successfully.`,
+          reminder,
         });
 
-      return Response.json({
-        success: true,
-        message: `Reminder "${reminder.title}" created successfully.`,
-        type: "reminder",
-      });
-    }
-
-    // ==========================================
-    // CREATE NOTE
-    // ==========================================
-
-    if (
-      parsedCommand.action ===
-      "create_note"
-    ) {
-      if (!parsedCommand.title?.trim()) {
-        return Response.json(
-          {
-            success: false,
-            message: "Note title is required.",
-          },
-          {
-            status: 400,
-          }
-        );
+        continue;
       }
 
-      if (!parsedCommand.content?.trim()) {
-        return Response.json(
-          {
+      /*
+      ========================================
+      CREATE NOTE
+      ========================================
+      */
+
+      if (action === "create_note") {
+        if (!item.title) {
+          results.push({
             success: false,
-            message: "Note content is required.",
-          },
-          {
-            status: 400,
-          }
-        );
-      }
-
-      const note = await Note.create({
-        userId: user.userId,
-        title: parsedCommand.title.trim(),
-        content:
-          parsedCommand.content.trim(),
-      });
-
-      return Response.json({
-        success: true,
-        message: `Note "${note.title}" created successfully.`,
-        type: "note",
-      });
-    }
-
-    // ==========================================
-    // FIND TASK
-    // ==========================================
-
-    if (
-      parsedCommand.action ===
-        "update_task" ||
-      parsedCommand.action ===
-        "delete_task" ||
-      parsedCommand.action ===
-        "complete_task"
-    ) {
-      if (!parsedCommand.search?.trim()) {
-        return Response.json(
-          {
-            success: false,
+            action,
             message:
-              "Please specify which task.",
-          },
-          {
-            status: 400,
-          }
-        );
+              "Note title is required.",
+          });
+
+          continue;
+        }
+
+        const note =
+          await Note.create({
+            userId: user.userId,
+            title: item.title,
+            content:
+              item.content || "",
+          });
+
+        results.push({
+          success: true,
+          action,
+          message:
+            `Note "${note.title}" created successfully.`,
+          note,
+        });
+
+        continue;
       }
 
-      const task = await Task.findOne({
-        userId: user.userId,
-        title: {
-          $regex: parsedCommand.search.trim(),
-          $options: "i",
-        },
-      }).sort({
-        createdAt: -1,
-      });
-
-      if (!task) {
-        return Response.json(
-          {
-            success: false,
-            message:
-              "Task not found.",
-          },
-          {
-            status: 404,
-          }
-        );
-      }
-
-      // COMPLETE TASK
+      /*
+      ========================================
+      SEARCH TASKS
+      ========================================
+      */
 
       if (
-        parsedCommand.action ===
+        action ===
+        "search_tasks"
+      ) {
+        const search =
+          item.search?.trim();
+
+        if (!search) {
+          results.push({
+            success: false,
+            action,
+            message:
+              "Please provide something to search.",
+          });
+
+          continue;
+        }
+
+        const safeSearch =
+          escapeRegex(search);
+
+        const tasks =
+          await Task.find({
+            userId: user.userId,
+            title: {
+              $regex: safeSearch,
+              $options: "i",
+            },
+          })
+            .sort({
+              createdAt: -1,
+            })
+            .limit(20)
+            .lean();
+
+        results.push({
+          success: true,
+          action,
+          message:
+            `Found ${tasks.length} task(s).`,
+          results: tasks,
+          resultType: "tasks",
+        });
+
+        continue;
+      }
+
+      /*
+      ========================================
+      SEARCH REMINDERS
+      ========================================
+      */
+
+      if (
+        action ===
+        "search_reminders"
+      ) {
+        const search =
+          item.search?.trim();
+
+        if (!search) {
+          results.push({
+            success: false,
+            action,
+            message:
+              "Please provide something to search.",
+          });
+
+          continue;
+        }
+
+        const safeSearch =
+          escapeRegex(search);
+
+        const reminders =
+          await Reminder.find({
+            userId: user.userId,
+            title: {
+              $regex: safeSearch,
+              $options: "i",
+            },
+          })
+            .sort({
+              createdAt: -1,
+            })
+            .limit(20)
+            .lean();
+
+        results.push({
+          success: true,
+          action,
+          message:
+            `Found ${reminders.length} reminder(s).`,
+          results: reminders,
+          resultType:
+            "reminders",
+        });
+
+        continue;
+      }
+
+      /*
+      ========================================
+      SEARCH NOTES
+      ========================================
+      */
+
+      if (
+        action ===
+        "search_notes"
+      ) {
+        const search =
+          item.search?.trim();
+
+        if (!search) {
+          results.push({
+            success: false,
+            action,
+            message:
+              "Please provide something to search.",
+          });
+
+          continue;
+        }
+
+        const safeSearch =
+          escapeRegex(search);
+
+        const notes =
+          await Note.find({
+            userId: user.userId,
+            $or: [
+              {
+                title: {
+                  $regex:
+                    safeSearch,
+                  $options: "i",
+                },
+              },
+              {
+                content: {
+                  $regex:
+                    safeSearch,
+                  $options: "i",
+                },
+              },
+            ],
+          })
+            .sort({
+              createdAt: -1,
+            })
+            .limit(20)
+            .lean();
+
+        results.push({
+          success: true,
+          action,
+          message:
+            `Found ${notes.length} note(s).`,
+          results: notes,
+          resultType: "notes",
+        });
+
+        continue;
+      }
+
+      /*
+      ========================================
+      COMPLETE TASK
+      ========================================
+      */
+
+      if (
+        action ===
         "complete_task"
       ) {
-        task.completed = true;
+        if (!item.title) {
+          results.push({
+            success: false,
+            action,
+            message:
+              "Task title is required.",
+          });
 
-        await task.save();
+          continue;
+        }
 
-        return Response.json({
+        const safeTitle =
+          escapeRegex(item.title);
+
+        const task =
+          await Task.findOneAndUpdate(
+            {
+              userId: user.userId,
+              title: {
+                $regex:
+                  `^${safeTitle}$`,
+                $options: "i",
+              },
+            },
+            {
+              completed: true,
+            },
+            {
+              new: true,
+            }
+          );
+
+        if (!task) {
+          results.push({
+            success: false,
+            action,
+            message:
+              `Task "${item.title}" not found.`,
+          });
+
+          continue;
+        }
+
+        results.push({
           success: true,
-          message: `Task "${task.title}" completed successfully.`,
-          type: "task",
+          action,
+          message:
+            `Task "${task.title}" marked as completed.`,
+          task,
         });
+
+        continue;
       }
 
-      // DELETE TASK
+      /*
+      ========================================
+      COMPLETE REMINDER
+      ========================================
+      */
 
       if (
-        parsedCommand.action ===
+        action ===
+        "complete_reminder"
+      ) {
+        if (!item.title) {
+          results.push({
+            success: false,
+            action,
+            message:
+              "Reminder title is required.",
+          });
+
+          continue;
+        }
+
+        const safeTitle =
+          escapeRegex(item.title);
+
+        const reminder =
+          await Reminder.findOneAndUpdate(
+            {
+              userId: user.userId,
+              title: {
+                $regex:
+                  `^${safeTitle}$`,
+                $options: "i",
+              },
+            },
+            {
+              completed: true,
+            },
+            {
+              new: true,
+            }
+          );
+
+        if (!reminder) {
+          results.push({
+            success: false,
+            action,
+            message:
+              `Reminder "${item.title}" not found.`,
+          });
+
+          continue;
+        }
+
+        results.push({
+          success: true,
+          action,
+          message:
+            `Reminder "${reminder.title}" marked as completed.`,
+          reminder,
+        });
+
+        continue;
+      }
+
+      /*
+      ========================================
+      UPDATE TASK
+      ========================================
+      */
+
+      if (
+        action ===
+        "update_task"
+      ) {
+        if (!item.title) {
+          results.push({
+            success: false,
+            action,
+            message:
+              "Task title is required.",
+          });
+
+          continue;
+        }
+
+        const updateData = {};
+
+        if (item.description) {
+          updateData.description =
+            item.description;
+        }
+
+        if (
+          [
+            "Low",
+            "Medium",
+            "High",
+          ].includes(
+            item.priority
+          )
+        ) {
+          updateData.priority =
+            item.priority;
+        }
+
+        if (item.date) {
+          const dueDate =
+            getDateFromText(
+              item.date
+            );
+
+          if (dueDate) {
+            updateData.dueDate =
+              dueDate;
+          }
+        }
+
+        const safeTitle =
+          escapeRegex(item.title);
+
+        const task =
+          await Task.findOneAndUpdate(
+            {
+              userId: user.userId,
+              title: {
+                $regex:
+                  `^${safeTitle}$`,
+                $options: "i",
+              },
+            },
+            updateData,
+            {
+              new: true,
+            }
+          );
+
+        if (!task) {
+          results.push({
+            success: false,
+            action,
+            message:
+              `Task "${item.title}" not found.`,
+          });
+
+          continue;
+        }
+
+        results.push({
+          success: true,
+          action,
+          message:
+            `Task "${task.title}" updated successfully.`,
+          task,
+        });
+
+        continue;
+      }
+
+      /*
+      ========================================
+      UPDATE REMINDER
+      ========================================
+      */
+
+      if (
+        action ===
+        "update_reminder"
+      ) {
+        if (!item.title) {
+          results.push({
+            success: false,
+            action,
+            message:
+              "Reminder title is required.",
+          });
+
+          continue;
+        }
+
+        const updateData = {};
+
+        if (item.description) {
+          updateData.description =
+            item.description;
+        }
+
+        if (item.date) {
+          const reminderDate =
+            getDateFromText(
+              item.date
+            );
+
+          if (reminderDate) {
+            updateData.reminderDate =
+              reminderDate;
+          }
+        }
+
+        const safeTitle =
+          escapeRegex(item.title);
+
+        const reminder =
+          await Reminder.findOneAndUpdate(
+            {
+              userId: user.userId,
+              title: {
+                $regex:
+                  `^${safeTitle}$`,
+                $options: "i",
+              },
+            },
+            updateData,
+            {
+              new: true,
+            }
+          );
+
+        if (!reminder) {
+          results.push({
+            success: false,
+            action,
+            message:
+              `Reminder "${item.title}" not found.`,
+          });
+
+          continue;
+        }
+
+        results.push({
+          success: true,
+          action,
+          message:
+            `Reminder "${reminder.title}" updated successfully.`,
+          reminder,
+        });
+
+        continue;
+      }
+
+      /*
+      ========================================
+      UPDATE NOTE
+      ========================================
+      */
+
+      if (
+        action ===
+        "update_note"
+      ) {
+        if (!item.title) {
+          results.push({
+            success: false,
+            action,
+            message:
+              "Note title is required.",
+          });
+
+          continue;
+        }
+
+        const updateData = {};
+
+        if (item.content) {
+          updateData.content =
+            item.content;
+        }
+
+        const safeTitle =
+          escapeRegex(item.title);
+
+        const note =
+          await Note.findOneAndUpdate(
+            {
+              userId: user.userId,
+              title: {
+                $regex:
+                  `^${safeTitle}$`,
+                $options: "i",
+              },
+            },
+            updateData,
+            {
+              new: true,
+            }
+          );
+
+        if (!note) {
+          results.push({
+            success: false,
+            action,
+            message:
+              `Note "${item.title}" not found.`,
+          });
+
+          continue;
+        }
+
+        results.push({
+          success: true,
+          action,
+          message:
+            `Note "${note.title}" updated successfully.`,
+          note,
+        });
+
+        continue;
+      }
+
+      /*
+      ========================================
+      DELETE TASK
+      ========================================
+      */
+
+      if (
+        action ===
         "delete_task"
       ) {
-        const title = task.title;
+        if (!item.title) {
+          results.push({
+            success: false,
+            action,
+            message:
+              "Task title is required.",
+          });
 
-        await Task.deleteOne({
-          _id: task._id,
-        });
-
-        return Response.json({
-          success: true,
-          message: `Task "${title}" deleted successfully.`,
-          type: "task",
-        });
-      }
-
-      // UPDATE TASK
-
-      if (parsedCommand.title?.trim()) {
-        task.title =
-          parsedCommand.title.trim();
-      }
-
-      if (
-        parsedCommand.description !== null &&
-        parsedCommand.description !== undefined
-      ) {
-        task.description =
-          parsedCommand.description.trim();
-      }
-
-      if (
-        ["Low", "Medium", "High"].includes(
-          parsedCommand.priority
-        )
-      ) {
-        task.priority =
-          parsedCommand.priority;
-      }
-
-      if (parsedCommand.dueDate) {
-        const date = new Date(
-          parsedCommand.dueDate
-        );
-
-        if (!isNaN(date.getTime())) {
-          task.dueDate = date;
+          continue;
         }
-      }
 
-      await task.save();
+        /*
+        Find exact task first
+        */
 
-      return Response.json({
-        success: true,
-        message: `Task "${task.title}" updated successfully.`,
-        type: "task",
-      });
-    }
+        const safeTitle =
+          escapeRegex(item.title);
 
-    // ==========================================
-    // FIND REMINDER
-    // ==========================================
+        const task =
+          await Task.findOne({
+            userId: user.userId,
+            title: {
+              $regex:
+                `^${safeTitle}$`,
+              $options: "i",
+            },
+          });
 
-    if (
-      parsedCommand.action ===
-        "update_reminder" ||
-      parsedCommand.action ===
-        "delete_reminder" ||
-      parsedCommand.action ===
-        "complete_reminder"
-    ) {
-      if (!parsedCommand.search?.trim()) {
-        return Response.json(
-          {
+        if (!task) {
+          results.push({
             success: false,
+            action,
             message:
-              "Please specify which reminder.",
-          },
-          {
-            status: 400,
-          }
-        );
-      }
+              `Task "${item.title}" not found.`,
+          });
 
-      const reminder =
-        await Reminder.findOne({
-          userId: user.userId,
-          title: {
-            $regex:
-              parsedCommand.search.trim(),
-            $options: "i",
-          },
-        }).sort({
-          createdAt: -1,
-        });
+          continue;
+        }
 
-      if (!reminder) {
-        return Response.json(
-          {
-            success: false,
-            message:
-              "Reminder not found.",
-          },
-          {
-            status: 404,
-          }
-        );
-      }
+        /*
+        Confirmation required
+        */
 
-      // COMPLETE REMINDER
+        const token =
+          createDeleteConfirmationToken({
+            userId: user.userId,
+            action,
+            itemId: task._id,
+          });
 
-      if (
-        parsedCommand.action ===
-        "complete_reminder"
-      ) {
-        reminder.completed = true;
-
-        await reminder.save();
-
-        return Response.json({
+        results.push({
           success: true,
-          message: `Reminder "${reminder.title}" completed successfully.`,
-          type: "reminder",
+          action,
+          requiresConfirmation: true,
+          confirmationType:
+            "delete_task",
+          confirmationMessage:
+            `Are you sure you want to delete task "${task.title}"?`,
+          confirmationToken: token,
+          itemId: task._id,
+          itemTitle: task.title,
         });
+
+        continue;
       }
 
-      // DELETE REMINDER
+      /*
+      ========================================
+      DELETE REMINDER
+      ========================================
+      */
 
       if (
-        parsedCommand.action ===
+        action ===
         "delete_reminder"
       ) {
-        const title = reminder.title;
-
-        await Reminder.deleteOne({
-          _id: reminder._id,
-        });
-
-        return Response.json({
-          success: true,
-          message: `Reminder "${title}" deleted successfully.`,
-          type: "reminder",
-        });
-      }
-
-      // UPDATE REMINDER
-
-      if (parsedCommand.title?.trim()) {
-        reminder.title =
-          parsedCommand.title.trim();
-      }
-
-      if (
-        parsedCommand.description !== null &&
-        parsedCommand.description !== undefined
-      ) {
-        reminder.description =
-          parsedCommand.description.trim();
-      }
-
-      if (parsedCommand.reminderDate) {
-        const date = new Date(
-          parsedCommand.reminderDate
-        );
-
-        if (!isNaN(date.getTime())) {
-          reminder.reminderDate = date;
-        }
-      }
-
-      await reminder.save();
-
-      return Response.json({
-        success: true,
-        message: `Reminder "${reminder.title}" updated successfully.`,
-        type: "reminder",
-      });
-    }
-
-    // ==========================================
-    // UPDATE / DELETE NOTE
-    // ==========================================
-
-    if (
-      parsedCommand.action ===
-        "update_note" ||
-      parsedCommand.action ===
-        "delete_note"
-    ) {
-      if (!parsedCommand.search?.trim()) {
-        return Response.json(
-          {
+        if (!item.title) {
+          results.push({
             success: false,
+            action,
             message:
-              "Please specify which note.",
-          },
-          {
-            status: 400
-          }
-        );
-      }
+              "Reminder title is required.",
+          });
 
-      const note = await Note.findOne({
-        userId: user.userId,
-        title: {
-          $regex:
-            parsedCommand.search.trim(),
-          $options: "i",
-        },
-      }).sort({
-        createdAt: -1,
-      });
+          continue;
+        }
 
-      if (!note) {
-        return Response.json(
-          {
+        const safeTitle =
+          escapeRegex(item.title);
+
+        const reminder =
+          await Reminder.findOne({
+            userId: user.userId,
+            title: {
+              $regex:
+                `^${safeTitle}$`,
+              $options: "i",
+            },
+          });
+
+        if (!reminder) {
+          results.push({
             success: false,
-            message: "Note not found.",
-          },
-          {
-            status: 404,
-          }
-        );
+            action,
+            message:
+              `Reminder "${item.title}" not found.`,
+          });
+
+          continue;
+        }
+
+        const token =
+          createDeleteConfirmationToken({
+            userId: user.userId,
+            action,
+            itemId: reminder._id,
+          });
+
+        results.push({
+          success: true,
+          action,
+          requiresConfirmation: true,
+          confirmationType:
+            "delete_reminder",
+          confirmationMessage:
+            `Are you sure you want to delete reminder "${reminder.title}"?`,
+          confirmationToken: token,
+          itemId: reminder._id,
+          itemTitle: reminder.title,
+        });
+
+        continue;
       }
 
-      // DELETE NOTE
+      /*
+      ========================================
+      DELETE NOTE
+      ========================================
+      */
 
       if (
-        parsedCommand.action ===
+        action ===
         "delete_note"
       ) {
-        const title = note.title;
+        if (!item.title) {
+          results.push({
+            success: false,
+            action,
+            message:
+              "Note title is required.",
+          });
 
-        await Note.deleteOne({
-          _id: note._id,
-        });
+          continue;
+        }
 
-        return Response.json({
-          success: true,
-          message: `Note "${title}" deleted successfully.`,
-          type: "note",
-        });
-      }
+        const safeTitle =
+          escapeRegex(item.title);
 
-      // UPDATE NOTE
-
-      if (parsedCommand.title?.trim()) {
-        note.title =
-          parsedCommand.title.trim();
-      }
-
-      if (parsedCommand.content?.trim()) {
-        note.content =
-          parsedCommand.content.trim();
-      }
-
-      await note.save();
-
-      return Response.json({
-        success: true,
-        message: `Note "${note.title}" updated successfully.`,
-        type: "note",
-      });
-    }
-
-    // ==========================================
-    // SEARCH TASKS
-    // ==========================================
-
-    if (
-      parsedCommand.action ===
-      "search_tasks"
-    ) {
-      const search =
-        parsedCommand.search?.trim() || "";
-
-      const query = {
-        userId: user.userId,
-      };
-
-      if (search) {
-        query.title = {
-          $regex: search,
-          $options: "i",
-        };
-      }
-
-      const tasks = await Task.find(query)
-        .sort({
-          createdAt: -1,
-        })
-        .limit(10)
-        .lean();
-
-      return Response.json({
-        success: true,
-        message:
-          tasks.length > 0
-            ? `Found ${tasks.length} task(s).`
-            : "No tasks found.",
-        type: "search",
-        results: tasks,
-      });
-    }
-
-    // ==========================================
-    // SEARCH REMINDERS
-    // ==========================================
-
-    if (
-      parsedCommand.action ===
-      "search_reminders"
-    ) {
-      const search =
-        parsedCommand.search?.trim() || "";
-
-      const query = {
-        userId: user.userId,
-      };
-
-      if (search) {
-        query.title = {
-          $regex: search,
-          $options: "i",
-        };
-      }
-
-      const reminders =
-        await Reminder.find(query)
-          .sort({
-            reminderDate: 1,
-          })
-          .limit(10)
-          .lean();
-
-      return Response.json({
-        success: true,
-        message:
-          reminders.length > 0
-            ? `Found ${reminders.length} reminder(s).`
-            : "No reminders found.",
-        type: "search",
-        results: reminders,
-      });
-    }
-
-    // ==========================================
-    // SEARCH NOTES
-    // ==========================================
-
-    if (
-      parsedCommand.action ===
-      "search_notes"
-    ) {
-      const search =
-        parsedCommand.search?.trim() || "";
-
-      const query = {
-        userId: user.userId,
-      };
-
-      if (search) {
-        query.$or = [
-          {
+        const note =
+          await Note.findOne({
+            userId: user.userId,
             title: {
-              $regex: search,
+              $regex:
+                `^${safeTitle}$`,
               $options: "i",
             },
-          },
-          {
-            content: {
-              $regex: search,
-              $options: "i",
-            },
-          },
-        ];
+          });
+
+        if (!note) {
+          results.push({
+            success: false,
+            action,
+            message:
+              `Note "${item.title}" not found.`,
+          });
+
+          continue;
+        }
+
+        const token =
+          createDeleteConfirmationToken({
+            userId: user.userId,
+            action,
+            itemId: note._id,
+          });
+
+        results.push({
+          success: true,
+          action,
+          requiresConfirmation: true,
+          confirmationType:
+            "delete_note",
+          confirmationMessage:
+            `Are you sure you want to delete note "${note.title}"?`,
+          confirmationToken: token,
+          itemId: note._id,
+          itemTitle: note.title,
+        });
+
+        continue;
       }
 
-      const notes = await Note.find(query)
-        .sort({
-          createdAt: -1,
-        })
-        .limit(10)
-        .lean();
+      /*
+      ========================================
+      UNSUPPORTED ACTION
+      ========================================
+      */
 
-      return Response.json({
-        success: true,
+      results.push({
+        success: false,
+        action,
         message:
-          notes.length > 0
-            ? `Found ${notes.length} note(s).`
-            : "No notes found.",
-        type: "search",
-        results: notes,
+          `Action "${action}" is not supported yet.`,
       });
     }
 
-    // ==========================================
-    // UNKNOWN ACTION
-    // ==========================================
+    /*
+    ==========================================
+    SAVE AI HISTORY
+    ==========================================
+    */
 
-    return Response.json(
-      {
-        success: false,
+    const confirmationResults =
+      results.filter(
+        (result) =>
+          result.requiresConfirmation
+      );
+
+    const successfulResults =
+      results.filter(
+        (result) =>
+          result.success &&
+          !result.requiresConfirmation
+      );
+
+    const failedResults =
+      results.filter(
+        (result) =>
+          !result.success
+      );
+
+    /*
+    If delete confirmation is waiting,
+    don't mark the command as completed.
+    */
+
+    if (
+      confirmationResults.length > 0
+    ) {
+      return Response.json({
+        success: true,
+        requiresConfirmation: true,
         message:
-          "This command is not supported yet.",
-      },
-      {
-        status: 400,
-      }
-    );
+          confirmationResults
+            .map(
+              (result) =>
+                result.confirmationMessage
+            )
+            .join(" "),
+        results,
+      });
+    }
+
+    /*
+    Save history
+    */
+
+    await saveAIHistory({
+      userId: user.userId,
+      command,
+      action: actions
+        .map(
+          (item) =>
+            item.action
+        )
+        .join(","),
+      status:
+        failedResults.length === 0
+          ? "success"
+          : successfulResults.length >
+            0
+          ? "success"
+          : "failed",
+      response: results
+        .map(
+          (result) =>
+            result.message
+        )
+        .filter(Boolean)
+        .join(" "),
+    });
+
+    /*
+    ==========================================
+    FINAL RESPONSE
+    ==========================================
+    */
+
+    return Response.json({
+      success:
+        successfulResults.length >
+        0,
+      message:
+        successfulResults.length >
+        0
+          ? results
+              .map(
+                (result) =>
+                  result.message
+              )
+              .filter(Boolean)
+              .join(" ")
+          : "No action was completed.",
+      results,
+    });
   } catch (error) {
     console.error(
-      "AI COMMAND API ERROR:",
+      "AI COMMAND ERROR:",
       error
     );
 
@@ -951,7 +1770,7 @@ ${command}
       {
         success: false,
         message:
-          "Failed to process AI command.",
+          "Failed to execute AI command.",
       },
       {
         status: 500,

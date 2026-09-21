@@ -7,9 +7,9 @@ import Task from "@/models/Task";
 import Note from "@/models/Note";
 import Reminder from "@/models/Reminder";
 
-import LogoutButton from "@/components/LogoutButton";
 import ReminderNotification from "@/components/ReminderNotification";
 import AICommandCenter from "@/components/AICommandCenter";
+import DashboardSidebar from "@/components/DashboardSidebar";
 
 export default async function DashboardPage() {
   // ==========================================
@@ -223,7 +223,6 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-
       {/* ====================================== */}
       {/* REMINDER NOTIFICATION SYSTEM */}
       {/* ====================================== */}
@@ -235,23 +234,21 @@ export default async function DashboardPage() {
       {/* ====================================== */}
 
       <nav className="border-b border-slate-800 bg-slate-950">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6">
+          <div className="flex items-center justify-between gap-4">
             {/* Logo */}
 
             <a
               href="/dashboard"
-              className="text-2xl font-bold text-cyan-400"
+              className="text-xl font-bold text-cyan-400 sm:text-2xl"
             >
               DigitalDost
             </a>
 
             {/* User */}
 
-            <div className="flex items-center gap-4">
-
-              <div className="hidden sm:block text-right">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="hidden text-right sm:block">
                 <p className="text-sm font-medium">
                   {user.name}
                 </p>
@@ -261,12 +258,11 @@ export default async function DashboardPage() {
                 </p>
               </div>
 
-              <div className="w-10 h-10 rounded-full bg-cyan-500 text-slate-950 font-bold flex items-center justify-center">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cyan-500 font-bold text-slate-950 sm:h-10 sm:w-10">
                 {user.name
                   ?.charAt(0)
                   ?.toUpperCase()}
               </div>
-
             </div>
           </div>
         </div>
@@ -276,373 +272,250 @@ export default async function DashboardPage() {
       {/* MAIN */}
       {/* ====================================== */}
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-
-        <div className="grid lg:grid-cols-[240px_1fr] gap-8">
-
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
           {/* ====================================== */}
-          {/* SIDEBAR */}
+          {/* RESPONSIVE SIDEBAR */}
           {/* ====================================== */}
 
-          <aside>
-
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-
-              <p className="text-xs uppercase tracking-wider text-slate-500 mb-3 px-3">
-                Menu
-              </p>
-
-              <div className="space-y-1">
-
-                <a
-                  href="/dashboard"
-                  className="flex items-center gap-3 px-3 py-3 rounded-xl bg-cyan-500/10 text-cyan-400"
-                >
-                  📊
-                  <span>Dashboard</span>
-                </a>
-
-                <a
-                  href="/assistant"
-                  className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition"
-                >
-                  🤖
-                  <span>AI Assistant</span>
-                </a>
-
-                <a
-                  href="/tasks"
-                  className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition"
-                >
-                  ✅
-                  <span>Tasks</span>
-                </a>
-
-                <a
-                  href="/reminders"
-                  className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition"
-                >
-                  🔔
-                  <span>Reminders</span>
-                </a>
-
-                <a
-                  href="/notes"
-                  className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition"
-                >
-                  📝
-                  <span>Notes</span>
-                </a>
-
-                <a
-                  href="/documents"
-                  className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition"
-                >
-                  📄
-                  <span>Documents</span>
-                </a>
-
-                <a
-                  href="#"
-                  className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition"
-                >
-                  ⚙️
-                  <span>Settings</span>
-                </a>
-
-              </div>
-
-              {/* Logout */}
-
-              <div className="border-t border-slate-800 mt-4 pt-4">
-                <LogoutButton />
-              </div>
-
-            </div>
-
-          </aside>
+          <DashboardSidebar />
 
           {/* ====================================== */}
           {/* DASHBOARD CONTENT */}
           {/* ====================================== */}
 
-          <section>
-
+          <section className="min-w-0 flex-1">
             {/* ====================================== */}
             {/* GREETING */}
             {/* ====================================== */}
 
-            <div className="mb-8">
-
-              <p className="text-cyan-400 text-sm mb-2">
+            <div className="mb-6 sm:mb-8">
+              <p className="mb-2 text-sm text-cyan-400">
                 Welcome back 👋
               </p>
 
-              <h1 className="text-4xl font-bold">
+              <h1 className="text-2xl font-bold sm:text-4xl">
                 Hello, {user.name}
               </h1>
 
-              <p className="text-slate-400 mt-2">
+              <p className="mt-2 text-sm text-slate-400 sm:text-base">
                 Manage your digital life from one place.
               </p>
-
             </div>
 
             {/* ====================================== */}
             {/* STATS */}
             {/* ====================================== */}
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-
+            <div className="mb-6 grid grid-cols-2 gap-3 sm:mb-8 sm:gap-4 lg:grid-cols-4">
               {/* TOTAL TASKS */}
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-
-                <p className="text-slate-400 text-sm">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-5">
+                <p className="text-xs text-slate-400 sm:text-sm">
                   Total Tasks
                 </p>
 
-                <p className="text-3xl font-bold mt-2">
+                <p className="mt-2 text-2xl font-bold sm:text-3xl">
                   {totalTasks}
                 </p>
 
-                <p className="text-slate-500 text-sm mt-1">
+                <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                   All tasks
                 </p>
-
               </div>
 
               {/* COMPLETED */}
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-
-                <p className="text-slate-400 text-sm">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-5">
+                <p className="text-xs text-slate-400 sm:text-sm">
                   Completed
                 </p>
 
-                <p className="text-3xl font-bold text-green-400 mt-2">
+                <p className="mt-2 text-2xl font-bold text-green-400 sm:text-3xl">
                   {completedTasks}
                 </p>
 
-                <p className="text-slate-500 text-sm mt-1">
+                <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                   Completed tasks
                 </p>
-
               </div>
 
               {/* PENDING */}
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-
-                <p className="text-slate-400 text-sm">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-5">
+                <p className="text-xs text-slate-400 sm:text-sm">
                   Pending
                 </p>
 
-                <p className="text-3xl font-bold text-yellow-400 mt-2">
+                <p className="mt-2 text-2xl font-bold text-yellow-400 sm:text-3xl">
                   {pendingTasks}
                 </p>
 
-                <p className="text-slate-500 text-sm mt-1">
+                <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                   Tasks remaining
                 </p>
-
               </div>
 
               {/* REMINDERS */}
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-
-                <p className="text-slate-400 text-sm">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-5">
+                <p className="text-xs text-slate-400 sm:text-sm">
                   Reminders
                 </p>
 
-                <p className="text-3xl font-bold text-cyan-400 mt-2">
+                <p className="mt-2 text-2xl font-bold text-cyan-400 sm:text-3xl">
                   {pendingReminders.length}
                 </p>
 
-                <p className="text-slate-500 text-sm mt-1">
+                <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                   Pending reminders
                 </p>
-
               </div>
-
             </div>
 
             {/* ====================================== */}
             {/* REMINDER SUMMARY */}
             {/* ====================================== */}
 
-            <div className="grid sm:grid-cols-3 gap-4 mb-8">
-
+            <div className="mb-6 grid grid-cols-1 gap-3 sm:mb-8 sm:grid-cols-3 sm:gap-4">
               {/* TODAY */}
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-
+              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
                 <div className="flex items-center justify-between">
-
                   <div>
-
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-sm text-slate-400">
                       Today
                     </p>
 
-                    <p className="text-2xl font-bold text-cyan-400 mt-2">
+                    <p className="mt-2 text-2xl font-bold text-cyan-400">
                       {todayReminders.length}
                     </p>
-
                   </div>
 
                   <div className="text-3xl">
                     📅
                   </div>
-
                 </div>
 
-                <p className="text-slate-500 text-sm mt-2">
+                <p className="mt-2 text-sm text-slate-500">
                   Today's reminders
                 </p>
-
               </div>
 
               {/* UPCOMING */}
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-
+              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
                 <div className="flex items-center justify-between">
-
                   <div>
-
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-sm text-slate-400">
                       Upcoming
                     </p>
 
-                    <p className="text-2xl font-bold text-green-400 mt-2">
+                    <p className="mt-2 text-2xl font-bold text-green-400">
                       {upcomingReminders.length}
                     </p>
-
                   </div>
 
                   <div className="text-3xl">
                     ⏰
                   </div>
-
                 </div>
 
-                <p className="text-slate-500 text-sm mt-2">
+                <p className="mt-2 text-sm text-slate-500">
                   Future reminders
                 </p>
-
               </div>
 
               {/* OVERDUE */}
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-
+              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
                 <div className="flex items-center justify-between">
-
                   <div>
-
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-sm text-slate-400">
                       Overdue
                     </p>
 
-                    <p className="text-2xl font-bold text-red-400 mt-2">
+                    <p className="mt-2 text-2xl font-bold text-red-400">
                       {overdueReminders.length}
                     </p>
-
                   </div>
 
                   <div className="text-3xl">
                     ⚠️
                   </div>
-
                 </div>
 
-                <p className="text-slate-500 text-sm mt-2">
+                <p className="mt-2 text-sm text-slate-500">
                   Missed reminders
                 </p>
-
               </div>
-
             </div>
 
-            {/* 
             {/* ====================================== */}
             {/* AI COMMAND CENTER */}
             {/* ====================================== */}
 
             <AICommandCenter />
+
             {/* ====================================== */}
             {/* TODAY TASKS + REMINDERS */}
             {/* ====================================== */}
 
-            <div className="grid lg:grid-cols-2 gap-6 mb-8">
-
+            <div className="mb-6 grid grid-cols-1 gap-5 sm:mb-8 lg:grid-cols-2 lg:gap-6">
               {/* TODAY TASKS */}
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-
-                <div className="flex items-center justify-between mb-5">
-
+              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:p-6">
+                <div className="mb-5 flex items-start justify-between gap-4">
                   <div>
-
-                    <h2 className="text-xl font-semibold">
+                    <h2 className="text-lg font-semibold sm:text-xl">
                       Today's Tasks
                     </h2>
 
-                    <p className="text-slate-400 text-sm mt-1">
+                    <p className="mt-1 text-sm text-slate-400">
                       Tasks scheduled for today
                     </p>
-
                   </div>
 
                   <a
                     href="/tasks"
-                    className="text-cyan-400 hover:text-cyan-300 text-sm"
+                    className="whitespace-nowrap text-sm text-cyan-400 hover:text-cyan-300"
                   >
                     View All →
                   </a>
-
                 </div>
 
                 {todayTasks.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <div className="mb-3 text-3xl">
+                      ✅
+                    </div>
 
-                  <div className="text-center py-8">
-
-                    <p className="text-slate-400">
+                    <p className="text-sm text-slate-400">
                       No tasks for today.
                     </p>
 
                     <a
                       href="/tasks"
-                      className="inline-block mt-4 bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-4 py-2 rounded-lg text-sm font-medium"
+                      className="mt-4 inline-block rounded-lg bg-cyan-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-400"
                     >
                       + Create Task
                     </a>
-
                   </div>
-
                 ) : (
-
                   <div className="space-y-3">
-
                     {todayTasks
                       .slice(0, 5)
                       .map((task) => (
-
                         <div
                           key={task._id.toString()}
-                          className="bg-slate-800/60 border border-slate-700 rounded-xl p-4"
+                          className="rounded-xl border border-slate-700 bg-slate-800/60 p-4"
                         >
-
-                          <div className="flex items-center justify-between gap-4">
-
-                            <div>
-
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
                               <h3
-                                className={`font-semibold ${
+                                className={`break-words font-semibold ${
                                   task.completed
-                                    ? "line-through text-slate-500"
+                                    ? "text-slate-500 line-through"
                                     : "text-white"
                                 }`}
                               >
@@ -650,15 +523,14 @@ export default async function DashboardPage() {
                               </h3>
 
                               {task.description && (
-                                <p className="text-slate-400 text-sm mt-1">
+                                <p className="mt-1 break-words text-sm text-slate-400">
                                   {task.description}
                                 </p>
                               )}
-
                             </div>
 
                             <span
-                              className={`text-xs px-3 py-1 rounded-full ${
+                              className={`shrink-0 rounded-full px-2.5 py-1 text-xs ${
                                 task.completed
                                   ? "bg-green-500/10 text-green-400"
                                   : "bg-yellow-500/10 text-yellow-400"
@@ -668,77 +540,63 @@ export default async function DashboardPage() {
                                 ? "Completed"
                                 : "Pending"}
                             </span>
-
                           </div>
-
                         </div>
-
                       ))}
-
                   </div>
-
                 )}
-
               </div>
 
               {/* SMART REMINDERS */}
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-
-                <div className="flex items-center justify-between mb-5">
-
+              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:p-6">
+                <div className="mb-5 flex items-start justify-between gap-4">
                   <div>
-
-                    <h2 className="text-xl font-semibold">
+                    <h2 className="text-lg font-semibold sm:text-xl">
                       Smart Reminders 🔔
                     </h2>
 
-                    <p className="text-slate-400 text-sm mt-1">
+                    <p className="mt-1 text-sm text-slate-400">
                       Today and upcoming reminders
                     </p>
-
                   </div>
 
                   <a
                     href="/reminders"
-                    className="text-cyan-400 hover:text-cyan-300 text-sm"
+                    className="whitespace-nowrap text-sm text-cyan-400 hover:text-cyan-300"
                   >
                     View All →
                   </a>
-
                 </div>
 
                 {dashboardReminders.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <div className="mb-3 text-3xl">
+                      🔔
+                    </div>
 
-                  <div className="text-center py-8">
-
-                    <p className="text-slate-400">
+                    <p className="text-sm text-slate-400">
                       No active reminders.
                     </p>
 
                     <a
                       href="/reminders"
-                      className="inline-block mt-4 bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-4 py-2 rounded-lg text-sm font-medium"
+                      className="mt-4 inline-block rounded-lg bg-cyan-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-400"
                     >
                       + Create Reminder
                     </a>
-
                   </div>
-
                 ) : (
-
                   <div className="space-y-3">
-
                     {dashboardReminders.map(
                       (reminder) => {
-
                         const status =
                           getReminderStatus(reminder);
 
                         return (
                           <div
                             key={reminder._id.toString()}
-                            className={`border rounded-xl p-4 ${
+                            className={`rounded-xl border p-4 ${
                               status === "Overdue"
                                 ? "border-red-500/30 bg-red-500/5"
                                 : status === "Today"
@@ -746,32 +604,28 @@ export default async function DashboardPage() {
                                 : "border-slate-700 bg-slate-800/60"
                             }`}
                           >
-
-                            <div className="flex items-start justify-between gap-4">
-
-                              <div className="flex-1">
-
-                                <h3 className="font-semibold">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0 flex-1">
+                                <h3 className="break-words font-semibold">
                                   🔔 {reminder.title}
                                 </h3>
 
                                 {reminder.description && (
-                                  <p className="text-slate-400 text-sm mt-1">
+                                  <p className="mt-1 break-words text-sm text-slate-400">
                                     {reminder.description}
                                   </p>
                                 )}
 
-                                <p className="text-cyan-400 text-sm mt-2">
+                                <p className="mt-2 text-sm text-cyan-400">
                                   📅{" "}
                                   {formatDate(
                                     reminder.reminderDate
                                   )}
                                 </p>
-
                               </div>
 
                               <span
-                                className={`text-xs px-3 py-1 rounded-full whitespace-nowrap ${
+                                className={`shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-xs ${
                                   status === "Overdue"
                                     ? "bg-red-500/10 text-red-400"
                                     : status === "Today"
@@ -781,20 +635,14 @@ export default async function DashboardPage() {
                               >
                                 {status}
                               </span>
-
                             </div>
-
                           </div>
                         );
                       }
                     )}
-
                   </div>
-
                 )}
-
               </div>
-
             </div>
 
             {/* ====================================== */}
@@ -802,21 +650,18 @@ export default async function DashboardPage() {
             {/* ====================================== */}
 
             <div>
-
-              <h2 className="text-xl font-semibold mb-4">
+              <h2 className="mb-4 text-xl font-semibold">
                 Quick Actions
               </h2>
 
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
                 {/* AI */}
 
                 <a
                   href="/assistant"
-                  className="bg-slate-900 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 transition"
+                  className="rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-cyan-500/50 hover:bg-slate-900/80"
                 >
-
-                  <div className="text-2xl mb-3">
+                  <div className="mb-3 text-2xl">
                     🤖
                   </div>
 
@@ -824,20 +669,18 @@ export default async function DashboardPage() {
                     Ask AI
                   </h3>
 
-                  <p className="text-slate-400 text-sm mt-1">
+                  <p className="mt-1 text-sm text-slate-400">
                     Talk with DigitalDost AI
                   </p>
-
                 </a>
 
                 {/* TASK */}
 
                 <a
                   href="/tasks"
-                  className="bg-slate-900 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 transition"
+                  className="rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-cyan-500/50 hover:bg-slate-900/80"
                 >
-
-                  <div className="text-2xl mb-3">
+                  <div className="mb-3 text-2xl">
                     ✅
                   </div>
 
@@ -845,20 +688,18 @@ export default async function DashboardPage() {
                     Add Task
                   </h3>
 
-                  <p className="text-slate-400 text-sm mt-1">
+                  <p className="mt-1 text-sm text-slate-400">
                     Create a new task
                   </p>
-
                 </a>
 
                 {/* REMINDER */}
 
                 <a
                   href="/reminders"
-                  className="bg-slate-900 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 transition"
+                  className="rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-cyan-500/50 hover:bg-slate-900/80"
                 >
-
-                  <div className="text-2xl mb-3">
+                  <div className="mb-3 text-2xl">
                     🔔
                   </div>
 
@@ -866,20 +707,18 @@ export default async function DashboardPage() {
                     Add Reminder
                   </h3>
 
-                  <p className="text-slate-400 text-sm mt-1">
+                  <p className="mt-1 text-sm text-slate-400">
                     Set a smart reminder
                   </p>
-
                 </a>
 
                 {/* NOTE */}
 
                 <a
                   href="/notes"
-                  className="bg-slate-900 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 transition"
+                  className="rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-cyan-500/50 hover:bg-slate-900/80"
                 >
-
-                  <div className="text-2xl mb-3">
+                  <div className="mb-3 text-2xl">
                     📝
                   </div>
 
@@ -887,34 +726,25 @@ export default async function DashboardPage() {
                     Add Note
                   </h3>
 
-                  <p className="text-slate-400 text-sm mt-1">
+                  <p className="mt-1 text-sm text-slate-400">
                     Write a quick note
                   </p>
-
                 </a>
-
               </div>
-
             </div>
 
             {/* ====================================== */}
             {/* FOOTER */}
             {/* ====================================== */}
 
-            <div className="border-t border-slate-800 mt-10 pt-6">
-
-              <p className="text-center text-slate-500 text-sm">
+            <div className="mt-10 border-t border-slate-800 pt-6">
+              <p className="text-center text-xs text-slate-500 sm:text-sm">
                 DigitalDost — Your Digital Life, Simplified. 🚀
               </p>
-
             </div>
-
           </section>
-
         </div>
-
       </div>
-
     </main>
   );
 }
