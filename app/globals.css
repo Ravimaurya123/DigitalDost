@@ -415,3 +415,130 @@ html.light-mode .dd-feature:hover {
     filter: none;
   }
 }
+
+/* ================================
+   DASHBOARD HEADING HOVER
+================================ */
+
+.dd-heading {
+  display: inline-block;
+  cursor: default;
+  transition:
+    transform 0.3s ease,
+    text-shadow 0.3s ease,
+    color 0.3s ease;
+}
+
+.dd-heading:hover {
+  transform: translateY(-5px) scale(1.02);
+  text-shadow:
+    0 0 10px rgba(34, 211, 238, 0.35),
+    0 0 25px rgba(34, 211, 238, 0.2);
+}
+
+.dd-subheading {
+  transition:
+    transform 0.3s ease,
+    color 0.3s ease;
+}
+
+.dd-subheading:hover {
+  transform: translateX(4px);
+  color: rgb(148, 163, 184);
+}
+
+/* ==========================================
+   WORD BY WORD POP ANIMATION
+========================================== */
+
+.dd-word-heading {
+  display: inline-block;
+  cursor: default;
+}
+
+.dd-word {
+  display: inline-block;
+  transition:
+    transform 0.25s ease,
+    text-shadow 0.25s ease;
+}
+
+.dd-word-heading:hover .dd-word {
+  animation: ddWordPop 0.65s ease-in-out;
+}
+
+.dd-word-heading:hover .dd-word:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.dd-word-heading:hover .dd-word:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+.dd-word-heading:hover .dd-word:nth-child(3) {
+  animation-delay: 0.16s;
+}
+
+.dd-word-heading:hover .dd-word:nth-child(4) {
+  animation-delay: 0.24s;
+}
+
+.dd-word-heading:hover .dd-word:nth-child(5) {
+  animation-delay: 0.32s;
+}
+
+.dd-word-heading:hover .dd-word:nth-child(6) {
+  animation-delay: 0.40s;
+}
+
+.dd-word-heading:hover .dd-word:nth-child(7) {
+  animation-delay: 0.48s;
+}
+
+@keyframes ddWordPop {
+  0% {
+    transform: translateY(0) scale(1);
+    text-shadow: none;
+  }
+
+  35% {
+    transform: translateY(-9px) scale(1.08);
+    text-shadow:
+      0 0 8px rgba(34, 211, 238, 0.35),
+      0 0 18px rgba(34, 211, 238, 0.2);
+  }
+
+  65% {
+    transform: translateY(4px) scale(0.98);
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+    text-shadow: none;
+  }
+}
+
+/* Mobile par animation thodi soft */
+@media (max-width: 640px) {
+  .dd-word-heading:hover .dd-word {
+    animation-duration: 0.55s;
+  }
+
+  @keyframes ddWordPop {
+    0% {
+      transform: translateY(0) scale(1);
+    }
+
+    35% {
+      transform: translateY(-6px) scale(1.04);
+    }
+
+    65% {
+      transform: translateY(3px) scale(0.99);
+    }
+
+    100% {
+      transform: translateY(0) scale(1);
+    }
+  }
+}

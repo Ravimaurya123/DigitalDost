@@ -29,12 +29,9 @@ export default function Greeting() {
 
     async function loadUser() {
       try {
-        const response = await fetch(
-          "/api/auth/me",
-          {
-            cache: "no-store",
-          }
-        );
+        const response = await fetch("/api/auth/me", {
+          cache: "no-store",
+        });
 
         const data = await response.json();
 
@@ -42,10 +39,7 @@ export default function Greeting() {
           setName(data.user?.name || "");
         }
       } catch (error) {
-        console.error(
-          "GREETING USER ERROR:",
-          error
-        );
+        console.error("GREETING USER ERROR:", error);
       }
     }
 
@@ -55,9 +49,7 @@ export default function Greeting() {
       setGreeting(getGreeting());
     }, 60000);
 
-    return () => {
-      clearInterval(interval);
-    };
+    return () => clearInterval(interval);
   }, []);
 
   const firstName =
@@ -65,11 +57,11 @@ export default function Greeting() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-white sm:text-4xl">
+      <h1 className="dd-heading text-3xl font-bold text-white sm:text-4xl">
         {greeting}, {firstName} 👋
       </h1>
 
-      <p className="mt-2 text-sm text-slate-400 sm:text-base">
+      <p className="dd-subheading mt-2 text-sm text-slate-400 sm:text-base">
         Manage your digital life from one place.
       </p>
     </div>
