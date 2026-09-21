@@ -22,63 +22,68 @@ export default function SettingsPage() {
     useState(false);
 
   useEffect(() => {
-    async function loadUser() {
-      try {
-        const response = await fetch(
-          "/api/auth/me",
-          {
-            cache: "no-store",
-          }
-        );
-
-        const data = await response.json();
-
-        if (data.success) {
-          setUser(data.user);
-        }
-      } catch (error) {
-        console.error(
-          "LOAD USER ERROR:",
-          error
-        );
-      }
-    }
-
     loadUser();
+    loadSettings();
+  }, []);
 
-    const savedSettings =
-      localStorage.getItem(
-        "digitaldost-settings"
+  async function loadUser() {
+    try {
+      const response = await fetch(
+        "/api/auth/me",
+        {
+          cache: "no-store",
+        }
       );
 
-    if (savedSettings) {
-      try {
-        const settings =
-          JSON.parse(savedSettings);
+      const data = await response.json();
 
-        setNotifications(
-          settings.notifications ?? true
-        );
-
-        setEmailNotifications(
-          settings.emailNotifications ?? false
-        );
-
-        setAiAssistant(
-          settings.aiAssistant ?? true
-        );
-
-        setTimeFormat(
-          settings.timeFormat ?? "12"
-        );
-      } catch (error) {
-        console.error(
-          "SETTINGS LOAD ERROR:",
-          error
-        );
+      if (response.ok && data.success) {
+        setUser(data.user);
       }
+    } catch (error) {
+      console.error(
+        "SETTINGS USER ERROR:",
+        error
+      );
     }
-  }, []);
+  }
+
+  function loadSettings() {
+    try {
+      const stored =
+        localStorage.getItem(
+          "digitaldost-settings"
+        );
+
+      if (!stored) {
+        return;
+      }
+
+      const settings =
+        JSON.parse(stored);
+
+      setNotifications(
+        settings.notifications ?? true
+      );
+
+      setEmailNotifications(
+        settings.emailNotifications ?? false
+      );
+
+      setAiAssistant(
+        settings.aiAssistant ?? true
+      );
+
+      setTimeFormat(
+        settings.timeFormat ?? "12"
+      );
+    } catch (error) {
+      console.error(
+        "LOAD SETTINGS ERROR:",
+        error
+      );
+    }
+  }
 
   function saveSettings() {
     const settings = {
@@ -100,145 +105,140 @@ export default function SettingsPage() {
     }, 2500);
   }
 
+  const initials =
+    getInitials(user?.name);
+
   return (
     <main className="min-h-screen bg-slate-950 text-white">
 
       {/* Header */}
 
-      <header className="border-b border-slate-800 bg-slate-950/90 px-6 py-5 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
+      <header className="border-b border-slate-800 bg-slate-950">
 
-          <div>
-            <Link
-              href="/dashboard"
-              className="text-sm text-cyan-400 hover:text-cyan-300"
-            >
-              ← Back to Dashboard
-            </Link>
+        <div className="mx-auto max-w-6xl px-6 py-6">
 
-            <h1 className="mt-2 text-2xl font-bold">
-              Settings
-            </h1>
+          <Link
+            href="/dashboard"
+            className="text-sm text-cyan-400 transition hover:text-cyan-300"
+          >
+            ← Back to Dashboard
+          </Link>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Manage your DigitalDost preferences.
-            </p>
-          </div>
+          <h1 className="mt-4 text-3xl font-bold">
+            Settings
+          </h1>
+
+          <p className="mt-2 text-sm text-slate-400">
+            Customize your DigitalDost experience.
+          </p>
 
         </div>
+
       </header>
 
       {/* Content */}
 
       <section className="mx-auto max-w-6xl px-6 py-8">
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2">
 
           {/* Profile */}
 
-          <div className="lg:col-span-3">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 md:col-span-2">
 
-            <SettingsCard
-              icon="👤"
-              title="Profile"
-              description="Your DigitalDost account information."
-            >
+            <div className="flex items-center gap-5">
 
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-cyan-500 text-xl font-bold text-slate-950">
+                {initials}
+              </div>
 
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-cyan-500 text-2xl font-bold text-slate-950">
-                  {getInitials(
-                    user?.name
-                  )}
-                </div>
+              <div>
 
-                <div>
-                  <p className="text-xl font-semibold text-white">
-                    {user?.name ||
-                      "Loading..."}
-                  </p>
+                <h2 className="text-xl font-bold text-white">
+                  {user?.name ||
+                    "Loading..."}
+                </h2>
 
-                  <p className="mt-1 text-sm text-slate-400">
-                    {user?.email ||
-                      "Loading..."}
-                  </p>
-                </div>
+                <p className="mt-1 text-sm text-slate-400">
+                  {user?.email ||
+                    "Loading..."}
+                </p>
+
+                <p className="mt-2 text-xs text-cyan-400">
+                  DigitalDost Account
+                </p>
 
               </div>
 
-            </SettingsCard>
+            </div>
 
           </div>
 
           {/* Notifications */}
 
-          <SettingsCard
+          <SettingCard
             icon="🔔"
             title="Notifications"
-            description="Control your DigitalDost reminders."
+            description="Manage your reminder notifications."
           >
 
-            <ToggleRow
+            <Toggle
               title="Reminder Notifications"
-              description="Show browser notifications for reminders."
-              enabled={notifications}
-              onChange={setNotifications}
+              description="Receive browser notifications for reminders."
+              value={notifications}
+              setValue={setNotifications}
             />
 
             <div className="my-5 border-t border-slate-800" />
 
-            <ToggleRow
+            <Toggle
               title="Email Notifications"
               description="Receive important updates by email."
-              enabled={emailNotifications}
-              onChange={
+              value={emailNotifications}
+              setValue={
                 setEmailNotifications
               }
             />
 
-          </SettingsCard>
+          </SettingCard>
 
           {/* AI */}
 
-          <SettingsCard
+          <SettingCard
             icon="🤖"
             title="AI Assistant"
-            description="Customize your AI experience."
+            description="Control DigitalDost AI features."
           >
 
-            <ToggleRow
+            <Toggle
               title="AI Assistant"
-              description="Allow DigitalDost AI features."
-              enabled={aiAssistant}
-              onChange={setAiAssistant}
+              description="Enable AI-powered DigitalDost features."
+              value={aiAssistant}
+              setValue={setAiAssistant}
             />
 
-            <div className="mt-6 rounded-xl border border-cyan-500/10 bg-cyan-500/5 p-4">
+            <div className="mt-5 rounded-xl border border-cyan-500/10 bg-cyan-500/5 p-4">
 
-              <p className="text-sm font-medium text-cyan-400">
+              <p className="text-sm font-semibold text-cyan-400">
                 AI Command Center
               </p>
 
               <p className="mt-1 text-xs leading-5 text-slate-500">
-                Use natural language to manage
-                your tasks, reminders and notes.
+                Manage tasks, reminders and notes
+                using natural language.
               </p>
 
             </div>
 
-          </SettingsCard>
+          </SettingCard>
 
           {/* Time */}
 
-          <SettingsCard
+          <SettingCard
             icon="🕐"
-            title="Time & Date"
-            description="Choose how DigitalDost displays time."
+            title="Time Format"
+            description="Choose your preferred time format."
           >
-
-            <label className="mb-3 block text-sm font-medium text-slate-300">
-              Time Format
-            </label>
 
             <select
               value={timeFormat}
@@ -249,127 +249,104 @@ export default function SettingsPage() {
               }
               className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
             >
+
               <option value="12">
-                12-hour (AM / PM)
+                12 Hour — 10:30 PM
               </option>
 
               <option value="24">
-                24-hour
+                24 Hour — 22:30
               </option>
+
             </select>
 
-          </SettingsCard>
+          </SettingCard>
 
           {/* Appearance */}
 
-          <SettingsCard
+          <SettingCard
             icon="🌙"
             title="Appearance"
-            description="DigitalDost currently uses a dark interface."
+            description="DigitalDost interface settings."
           >
 
-            <div className="rounded-xl border border-slate-800 bg-slate-950 p-4">
+            <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950 p-4">
 
-              <div className="flex items-center justify-between">
+              <div>
 
-                <div>
-                  <p className="text-sm font-medium text-white">
-                    Dark Mode
-                  </p>
+                <p className="text-sm font-semibold text-white">
+                  Dark Mode
+                </p>
 
-                  <p className="mt-1 text-xs text-slate-500">
-                    Optimized for the DigitalDost
-                    workspace.
-                  </p>
-                </div>
-
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-800">
-                  🌙
-                </div>
+                <p className="mt-1 text-xs text-slate-500">
+                  DigitalDost dark theme is active.
+                </p>
 
               </div>
 
-              <div className="mt-4 rounded-lg bg-slate-900 px-3 py-2 text-xs text-cyan-400">
-                ✓ Currently active
+              <span className="rounded-lg bg-cyan-500/10 px-3 py-2 text-sm text-cyan-400">
+                ON
+              </span>
+
+            </div>
+
+          </SettingCard>
+
+          {/* DigitalDost Features */}
+
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 md:col-span-2">
+
+            <div className="mb-6">
+
+              <div className="flex items-center gap-3">
+
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800">
+                  ✨
+                </div>
+
+                <div>
+
+                  <h2 className="font-semibold text-white">
+                    DigitalDost Features
+                  </h2>
+
+                  <p className="text-xs text-slate-500">
+                    Everything available in your workspace.
+                  </p>
+
+                </div>
+
               </div>
 
             </div>
 
-          </SettingsCard>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
-          {/* Security */}
+              <Feature
+                icon="🤖"
+                title="AI Assistant"
+                text="Ask questions and get AI help."
+              />
 
-          <SettingsCard
-            icon="🔒"
-            title="Security"
-            description="Manage your account security."
-          >
+              <Feature
+                icon="✅"
+                title="Tasks"
+                text="Manage your daily tasks."
+              />
 
-            <Link
-              href="/login"
-              className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950 p-4 transition hover:border-cyan-500/40"
-            >
+              <Feature
+                icon="🔔"
+                title="Reminders"
+                text="Never miss important activities."
+              />
 
-              <div>
-                <p className="text-sm font-medium text-white">
-                  Account Login
-                </p>
+              <Feature
+                icon="📄"
+                title="Documents"
+                text="Ask AI questions from PDFs."
+              />
 
-                <p className="mt-1 text-xs text-slate-500">
-                  Your account uses secure authentication.
-                </p>
-              </div>
-
-              <span className="text-slate-500">
-                →
-              </span>
-
-            </Link>
-
-          </SettingsCard>
-
-          {/* About */}
-
-          <div className="lg:col-span-3">
-
-            <SettingsCard
-              icon="ℹ️"
-              title="About DigitalDost"
-              description="Your personal digital assistant."
-            >
-
-              <div className="grid gap-4 sm:grid-cols-3">
-
-                <AboutItem
-                  icon="🤖"
-                  title="AI Assistant"
-                  text="Get intelligent help anytime."
-                />
-
-                <AboutItem
-                  icon="✅"
-                  title="Task Manager"
-                  text="Organize your daily work."
-                />
-
-                <AboutItem
-                  icon="📄"
-                  title="Document Assistant"
-                  text="Ask questions from your PDFs."
-                />
-
-              </div>
-
-              <div className="mt-6 border-t border-slate-800 pt-5">
-
-                <p className="text-xs text-slate-600">
-                  DigitalDost • Personal Digital
-                  Assistant
-                </p>
-
-              </div>
-
-            </SettingsCard>
+            </div>
 
           </div>
 
@@ -377,7 +354,7 @@ export default function SettingsPage() {
 
         {/* Save */}
 
-        <div className="sticky bottom-4 mt-8 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/95 p-4 shadow-2xl backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:flex-row sm:items-center sm:justify-between">
 
           <div>
 
@@ -387,7 +364,7 @@ export default function SettingsPage() {
               </p>
             ) : (
               <p className="text-sm text-slate-500">
-                Changes are saved on this device.
+                Your preferences are saved on this device.
               </p>
             )}
 
@@ -411,10 +388,10 @@ export default function SettingsPage() {
 
 
 /* =========================
-   SETTINGS CARD
+   SETTING CARD
 ========================= */
 
-function SettingsCard({
+function SettingCard({
   icon,
   title,
   description,
@@ -430,6 +407,7 @@ function SettingsCard({
         </div>
 
         <div>
+
           <h2 className="font-semibold text-white">
             {title}
           </h2>
@@ -437,6 +415,7 @@ function SettingsCard({
           <p className="mt-1 text-xs leading-5 text-slate-500">
             {description}
           </p>
+
         </div>
 
       </div>
@@ -452,16 +431,17 @@ function SettingsCard({
    TOGGLE
 ========================= */
 
-function ToggleRow({
+function Toggle({
   title,
   description,
-  enabled,
-  onChange,
+  value,
+  setValue,
 }) {
   return (
     <div className="flex items-center justify-between gap-4">
 
       <div>
+
         <p className="text-sm font-medium text-white">
           {title}
         </p>
@@ -469,24 +449,24 @@ function ToggleRow({
         <p className="mt-1 text-xs leading-5 text-slate-500">
           {description}
         </p>
+
       </div>
 
       <button
         type="button"
         onClick={() =>
-          onChange(!enabled)
+          setValue(!value)
         }
         className={`relative h-6 w-11 shrink-0 rounded-full transition ${
-          enabled
+          value
             ? "bg-cyan-500"
             : "bg-slate-700"
         }`}
-        aria-label={title}
       >
 
         <span
           className={`absolute top-1 h-4 w-4 rounded-full bg-white transition ${
-            enabled
+            value
               ? "left-6"
               : "left-1"
           }`}
@@ -500,10 +480,10 @@ function ToggleRow({
 
 
 /* =========================
-   ABOUT ITEM
+   FEATURE
 ========================= */
 
-function AboutItem({
+function Feature({
   icon,
   title,
   text,
@@ -549,7 +529,9 @@ function getInitials(name) {
   }
 
   return (
-    words[0].charAt(0).toUpperCase() +
+    words[0]
+      .charAt(0)
+      .toUpperCase() +
     words[words.length - 1]
       .charAt(0)
       .toUpperCase()

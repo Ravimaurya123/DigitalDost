@@ -24,3 +24,136 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+/* =====================================================
+   DIGITALDOST LIGHT MODE
+===================================================== */
+
+html.light-mode,
+html.light-mode body {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Main background */
+
+html.light-mode .bg-slate-950 {
+  background-color: #f8fafc !important;
+}
+
+/* Cards */
+
+html.light-mode .bg-slate-900 {
+  background-color: #ffffff !important;
+}
+
+/* Inner cards */
+
+html.light-mode .bg-slate-800 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light-mode .bg-slate-800\/60 {
+  background-color: #f1f5f9 !important;
+}
+
+/* Borders */
+
+html.light-mode .border-slate-800 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light-mode .border-slate-700 {
+  border-color: #cbd5e1 !important;
+}
+
+/* Text */
+
+html.light-mode .text-white {
+  color: #0f172a !important;
+}
+
+html.light-mode .text-slate-200 {
+  color: #1e293b !important;
+}
+
+html.light-mode .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.light-mode .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light-mode .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Hover */
+
+html.light-mode .hover\:bg-slate-800:hover {
+  background-color: #e2e8f0 !important;
+}
+
+html.light-mode .hover\:bg-slate-900\/80:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Header / Navigation */
+
+html.light-mode nav {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Links */
+
+html.light-mode .text-cyan-400 {
+  color: #0891b2 !important;
+}
+
+html.light-mode .hover\:text-cyan-300:hover {
+  color: #0e7490 !important;
+}
+
+/* Cyan buttons */
+
+html.light-mode .bg-cyan-500 {
+  background-color: #06b6d4 !important;
+}
+
+html.light-mode .hover\:bg-cyan-400:hover {
+  background-color: #22d3ee !important;
+}
+
+/* Dark mode button */
+
+html.light-mode button.bg-slate-900 {
+  background-color: #ffffff !important;
+}
+
+/* Sidebar */
+
+html.light-mode aside {
+  color: #0f172a;
+}
+
+/* Footer */
+
+html.light-mode footer {
+  border-color: #e2e8f0 !important;
+}
+
+/* Smooth transition */
+
+html.light-mode,
+html.light-mode body,
+html.light-mode main,
+html.light-mode nav,
+html.light-mode aside,
+html.light-mode section,
+html.light-mode div {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}

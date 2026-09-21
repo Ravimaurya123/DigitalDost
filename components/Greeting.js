@@ -2,30 +2,58 @@
 
 import { useEffect, useState } from "react";
 
-export default function Greeting({ name = "" }) {
+export default function Greeting() {
+  const [name, setName] = useState("");
   const [greeting, setGreeting] = useState("");
 
-  useEffect(() => {
-    function updateGreeting() {
-      const hour = new Date().getHours();
+  function getGreeting() {
+    const hour = new Date().getHours();
 
-      if (hour >= 5 && hour < 12) {
-        setGreeting("Good Morning");
-      } else if (hour >= 12 && hour < 17) {
-        setGreeting("Good Afternoon");
-      } else if (hour >= 17 && hour < 21) {
-        setGreeting("Good Evening");
-      } else {
-        setGreeting("Good Night");
+    if (hour >= 5 && hour < 12) {
+      return "Good Morning";
+    }
+
+    if (hour >= 12 && hour < 17) {
+      return "Good Afternoon";
+    }
+
+    if (hour >= 17 && hour < 21) {
+      return "Good Evening";
+    }
+
+    return "Good Night";
+  }
+
+  useEffect(() => {
+    setGreeting(getGreeting());
+
+    async function loadUser() {
+      try {
+        const response = await fetch(
+          "/api/auth/me",
+          {
+            cache: "no-store",
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          setName(data.user?.name || "");
+        }
+      } catch (error) {
+        console.error(
+          "GREETING USER ERROR:",
+          error
+        );
       }
     }
 
-    updateGreeting();
+    loadUser();
 
-    const interval = setInterval(
-      updateGreeting,
-      60 * 1000
-    );
+    const interval = setInterval(() => {
+      setGreeting(getGreeting());
+    }, 60000);
 
     return () => {
       clearInterval(interval);
@@ -33,17 +61,16 @@ export default function Greeting({ name = "" }) {
   }, []);
 
   const firstName =
-    name?.trim()?.split(/\s+/)[0] || "there";
+    name.trim().split(/\s+/)[0] || "there";
 
   return (
     <div>
       <h1 className="text-3xl font-bold text-white sm:text-4xl">
-        {greeting}, {firstName}{" "}
-        <span className="inline-block">👋</span>
+        {greeting}, {firstName} 👋
       </h1>
 
       <p className="mt-2 text-sm text-slate-400 sm:text-base">
-        Welcome to your DigitalDost workspace.
+        Manage your digital life from one place.
       </p>
     </div>
   );

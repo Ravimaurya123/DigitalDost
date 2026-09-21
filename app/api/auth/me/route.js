@@ -1,10 +1,12 @@
 import { getCurrentUser } from "@/lib/auth";
+import connectDB from "@/lib/mongodb";
+import User from "@/models/User";
 
 export async function GET() {
   try {
-    const user = await getCurrentUser();
+    const authUser = await getCurrentUser();
 
-    if (!user) {
+    if (!authUser) {
       return Response.json(
         {
           success: false,
@@ -16,10 +18,28 @@ export async function GET() {
       );
     }
 
+    await connectDB();
+
+    const user = await User.findById(
+      authUser.userId
+    ).select("name email");
+
+    if (!user) {
+      return Response.json(
+        {
+          success: false,
+          message: "User not found.",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
     return Response.json({
       success: true,
       user: {
-        id: user.userId,
+        id: user._id.toString(),
         name: user.name,
         email: user.email,
       },
@@ -33,7 +53,7 @@ export async function GET() {
     return Response.json(
       {
         success: false,
-        message: "Failed to get user.",
+        message: "Failed to get current user.",
       },
       {
         status: 500,

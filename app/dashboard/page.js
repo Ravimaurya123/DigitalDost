@@ -10,8 +10,9 @@ import Reminder from "@/models/Reminder";
 import ReminderNotification from "@/components/ReminderNotification";
 import AICommandCenter from "@/components/AICommandCenter";
 import DashboardSidebar from "@/components/DashboardSidebar";
-import UserAvatar from "@/components/UserAvatar";
 import Greeting from "@/components/Greeting";
+import ThemeToggle from "@/components/ThemeToggle";
+
 export default async function DashboardPage() {
   // ==========================================
   // CHECK LOGIN
@@ -189,10 +190,13 @@ export default async function DashboardPage() {
   // ==========================================
 
   function formatDate(date) {
-    return new Date(date).toLocaleString("en-IN", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
+    return new Date(date).toLocaleString(
+      "en-IN",
+      {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }
+    );
   }
 
   // ==========================================
@@ -224,166 +228,238 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-      {/* ====================================== */}
-      {/* REMINDER NOTIFICATION SYSTEM */}
-      {/* ====================================== */}
+
+      {/* ======================================
+          REMINDER NOTIFICATION
+      ====================================== */}
 
       <ReminderNotification />
 
-      {/* ====================================== */}
-      {/* NAVBAR */}
-      {/* ====================================== */}
+      {/* ======================================
+          NAVBAR
+      ====================================== */}
 
       <nav className="border-b border-slate-800 bg-slate-950">
+
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6">
+
           <div className="flex items-center justify-between gap-4">
+
             {/* Logo */}
 
             <a
               href="/dashboard"
-              className="text-xl font-bold text-cyan-400 sm:text-2xl"
+              className="text-xl font-bold text-cyan-400 transition hover:text-cyan-300 sm:text-2xl"
             >
               DigitalDost
             </a>
 
-            {/* User */}
+            {/* Right Side */}
 
             <div className="flex items-center gap-3 sm:gap-4">
+
+              {/* Theme Toggle */}
+
+              <ThemeToggle />
+
+              {/* User */}
+
               <div className="hidden text-right sm:block">
-                <p className="text-sm font-medium">
+
+                <p className="text-sm font-medium text-white">
                   {user.name}
                 </p>
 
                 <p className="text-xs text-slate-400">
                   {user.email}
                 </p>
+
               </div>
+
+              {/* Avatar */}
 
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cyan-500 font-bold text-slate-950 sm:h-10 sm:w-10">
                 {user.name
                   ?.charAt(0)
                   ?.toUpperCase()}
               </div>
+
             </div>
+
           </div>
+
         </div>
+
       </nav>
 
-      {/* ====================================== */}
-      {/* MAIN */}
-      {/* ====================================== */}
+      {/* ======================================
+          MAIN
+      ====================================== */}
 
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
+
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
-          {/* ====================================== */}
-          {/* RESPONSIVE SIDEBAR */}
-          {/* ====================================== */}
+
+          {/* ======================================
+              SIDEBAR
+          ====================================== */}
 
           <DashboardSidebar />
 
-          {/* ====================================== */}
-          {/* DASHBOARD CONTENT */}
-          {/* ====================================== */}
+          {/* ======================================
+              DASHBOARD CONTENT
+          ====================================== */}
 
           <section className="min-w-0 flex-1">
-            {/* ====================================== */}
-            {/* GREETING */}
-            {/* ====================================== */}
+
+            {/* ======================================
+                GREETING
+            ====================================== */}
 
             <div className="mb-6 sm:mb-8">
-              <p className="mb-2 text-sm text-cyan-400">
-                Welcome back {user.name}👋
-              </p>
 
-              <h1 className="text-2xl font-bold sm:text-4xl">
-                Hello, {user.name}🙏
-              </h1>
+              {/* IMPORTANT:
+                  Old Welcome back + Hello removed
+              */}
 
-              <p className="mt-2 text-sm text-slate-400 sm:text-base">
-                Manage your digital life from one place.
-              </p>
+              <Greeting />
+
             </div>
 
-            {/* ====================================== */}
-            {/* STATS */}
-            {/* ====================================== */}
+            {/* ======================================
+                STATS
+            ====================================== */}
 
             <div className="mb-6 grid grid-cols-2 gap-3 sm:mb-8 sm:gap-4 lg:grid-cols-4">
+
               {/* TOTAL TASKS */}
 
               <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-5">
-                <p className="text-xs text-slate-400 sm:text-sm">
-                  Total Tasks
-                </p>
 
-                <p className="mt-2 text-2xl font-bold sm:text-3xl">
-                  {totalTasks}
-                </p>
+                <div className="flex items-center justify-between">
+
+                  <div>
+                    <p className="text-xs text-slate-400 sm:text-sm">
+                      Total Tasks
+                    </p>
+
+                    <p className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+                      {totalTasks}
+                    </p>
+                  </div>
+
+                  <div className="text-2xl">
+                    📋
+                  </div>
+
+                </div>
 
                 <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                   All tasks
                 </p>
+
               </div>
 
               {/* COMPLETED */}
 
               <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-5">
-                <p className="text-xs text-slate-400 sm:text-sm">
-                  Completed
-                </p>
 
-                <p className="mt-2 text-2xl font-bold text-green-400 sm:text-3xl">
-                  {completedTasks}
-                </p>
+                <div className="flex items-center justify-between">
+
+                  <div>
+                    <p className="text-xs text-slate-400 sm:text-sm">
+                      Completed
+                    </p>
+
+                    <p className="mt-2 text-2xl font-bold text-green-400 sm:text-3xl">
+                      {completedTasks}
+                    </p>
+                  </div>
+
+                  <div className="text-2xl">
+                    ✅
+                  </div>
+
+                </div>
 
                 <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                   Completed tasks
                 </p>
+
               </div>
 
               {/* PENDING */}
 
               <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-5">
-                <p className="text-xs text-slate-400 sm:text-sm">
-                  Pending
-                </p>
 
-                <p className="mt-2 text-2xl font-bold text-yellow-400 sm:text-3xl">
-                  {pendingTasks}
-                </p>
+                <div className="flex items-center justify-between">
+
+                  <div>
+                    <p className="text-xs text-slate-400 sm:text-sm">
+                      Pending
+                    </p>
+
+                    <p className="mt-2 text-2xl font-bold text-yellow-400 sm:text-3xl">
+                      {pendingTasks}
+                    </p>
+                  </div>
+
+                  <div className="text-2xl">
+                    ⏳
+                  </div>
+
+                </div>
 
                 <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                   Tasks remaining
                 </p>
+
               </div>
 
               {/* REMINDERS */}
 
               <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-5">
-                <p className="text-xs text-slate-400 sm:text-sm">
-                  Reminders
-                </p>
 
-                <p className="mt-2 text-2xl font-bold text-cyan-400 sm:text-3xl">
-                  {pendingReminders.length}
-                </p>
+                <div className="flex items-center justify-between">
+
+                  <div>
+                    <p className="text-xs text-slate-400 sm:text-sm">
+                      Reminders
+                    </p>
+
+                    <p className="mt-2 text-2xl font-bold text-cyan-400 sm:text-3xl">
+                      {pendingReminders.length}
+                    </p>
+                  </div>
+
+                  <div className="text-2xl">
+                    🔔
+                  </div>
+
+                </div>
 
                 <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                   Pending reminders
                 </p>
+
               </div>
+
             </div>
 
-            {/* ====================================== */}
-            {/* REMINDER SUMMARY */}
-            {/* ====================================== */}
+            {/* ======================================
+                REMINDER SUMMARY
+            ====================================== */}
 
-            <div className="mb-6 grid grid-cols-1 gap-3 sm:mb-8 sm:grid-cols-3 sm:gap-4">
+            <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5 sm:mb-8">
+
               {/* TODAY */}
 
               <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
+
                 <div className="flex items-center justify-between">
+
                   <div>
+
                     <p className="text-sm text-slate-400">
                       Today
                     </p>
@@ -391,23 +467,29 @@ export default async function DashboardPage() {
                     <p className="mt-2 text-2xl font-bold text-cyan-400">
                       {todayReminders.length}
                     </p>
+
                   </div>
 
                   <div className="text-3xl">
                     📅
                   </div>
+
                 </div>
 
                 <p className="mt-2 text-sm text-slate-500">
                   Today's reminders
                 </p>
+
               </div>
 
               {/* UPCOMING */}
 
               <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
+
                 <div className="flex items-center justify-between">
+
                   <div>
+
                     <p className="text-sm text-slate-400">
                       Upcoming
                     </p>
@@ -415,23 +497,29 @@ export default async function DashboardPage() {
                     <p className="mt-2 text-2xl font-bold text-green-400">
                       {upcomingReminders.length}
                     </p>
+
                   </div>
 
                   <div className="text-3xl">
                     ⏰
                   </div>
+
                 </div>
 
                 <p className="mt-2 text-sm text-slate-500">
                   Future reminders
                 </p>
+
               </div>
 
               {/* OVERDUE */}
 
               <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
+
                 <div className="flex items-center justify-between">
+
                   <div>
+
                     <p className="text-sm text-slate-400">
                       Overdue
                     </p>
@@ -439,35 +527,45 @@ export default async function DashboardPage() {
                     <p className="mt-2 text-2xl font-bold text-red-400">
                       {overdueReminders.length}
                     </p>
+
                   </div>
 
                   <div className="text-3xl">
                     ⚠️
                   </div>
+
                 </div>
 
                 <p className="mt-2 text-sm text-slate-500">
                   Missed reminders
                 </p>
+
               </div>
+
             </div>
 
-            {/* ====================================== */}
-            {/* AI COMMAND CENTER */}
-            {/* ====================================== */}
+            {/* ======================================
+                AI COMMAND CENTER
+            ====================================== */}
 
             <AICommandCenter />
 
-            {/* ====================================== */}
-            {/* TODAY TASKS + REMINDERS */}
-            {/* ====================================== */}
+            {/* ======================================
+                TODAY TASKS + REMINDERS
+            ====================================== */}
 
-            <div className="mb-6 grid grid-cols-1 gap-5 sm:mb-8 lg:grid-cols-2 lg:gap-6">
-              {/* TODAY TASKS */}
+            <div className="mb-6 mt-6 grid grid-cols-1 gap-5 sm:mb-8 lg:grid-cols-2 lg:gap-6">
+
+              {/* ==================================
+                  TODAY TASKS
+              ================================== */}
 
               <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:p-6">
+
                 <div className="mb-5 flex items-start justify-between gap-4">
+
                   <div>
+
                     <h2 className="text-lg font-semibold sm:text-xl">
                       Today's Tasks
                     </h2>
@@ -475,6 +573,7 @@ export default async function DashboardPage() {
                     <p className="mt-1 text-sm text-slate-400">
                       Tasks scheduled for today
                     </p>
+
                   </div>
 
                   <a
@@ -483,16 +582,19 @@ export default async function DashboardPage() {
                   >
                     View All →
                   </a>
+
                 </div>
 
                 {todayTasks.length === 0 ? (
+
                   <div className="py-8 text-center">
+
                     <div className="mb-3 text-3xl">
-                      ✅
+                      🎯
                     </div>
 
                     <p className="text-sm text-slate-400">
-                      No tasks for today.
+                      No tasks due today.
                     </p>
 
                     <a
@@ -501,18 +603,26 @@ export default async function DashboardPage() {
                     >
                       + Create Task
                     </a>
+
                   </div>
+
                 ) : (
+
                   <div className="space-y-3">
+
                     {todayTasks
                       .slice(0, 5)
                       .map((task) => (
+
                         <div
                           key={task._id.toString()}
                           className="rounded-xl border border-slate-700 bg-slate-800/60 p-4"
                         >
+
                           <div className="flex items-start justify-between gap-3">
+
                             <div className="min-w-0">
+
                               <h3
                                 className={`break-words font-semibold ${
                                   task.completed
@@ -528,6 +638,7 @@ export default async function DashboardPage() {
                                   {task.description}
                                 </p>
                               )}
+
                             </div>
 
                             <span
@@ -541,18 +652,29 @@ export default async function DashboardPage() {
                                 ? "Completed"
                                 : "Pending"}
                             </span>
+
                           </div>
+
                         </div>
+
                       ))}
+
                   </div>
+
                 )}
+
               </div>
 
-              {/* SMART REMINDERS */}
+              {/* ==================================
+                  SMART REMINDERS
+              ================================== */}
 
               <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:p-6">
+
                 <div className="mb-5 flex items-start justify-between gap-4">
+
                   <div>
+
                     <h2 className="text-lg font-semibold sm:text-xl">
                       Smart Reminders 🔔
                     </h2>
@@ -560,6 +682,7 @@ export default async function DashboardPage() {
                     <p className="mt-1 text-sm text-slate-400">
                       Today and upcoming reminders
                     </p>
+
                   </div>
 
                   <a
@@ -568,10 +691,13 @@ export default async function DashboardPage() {
                   >
                     View All →
                   </a>
+
                 </div>
 
                 {dashboardReminders.length === 0 ? (
+
                   <div className="py-8 text-center">
+
                     <div className="mb-3 text-3xl">
                       🔔
                     </div>
@@ -586,13 +712,20 @@ export default async function DashboardPage() {
                     >
                       + Create Reminder
                     </a>
+
                   </div>
+
                 ) : (
+
                   <div className="space-y-3">
+
                     {dashboardReminders.map(
                       (reminder) => {
+
                         const status =
-                          getReminderStatus(reminder);
+                          getReminderStatus(
+                            reminder
+                          );
 
                         return (
                           <div
@@ -605,8 +738,11 @@ export default async function DashboardPage() {
                                 : "border-slate-700 bg-slate-800/60"
                             }`}
                           >
+
                             <div className="flex items-start justify-between gap-3">
+
                               <div className="min-w-0 flex-1">
+
                                 <h3 className="break-words font-semibold">
                                   🔔 {reminder.title}
                                 </h3>
@@ -623,6 +759,7 @@ export default async function DashboardPage() {
                                     reminder.reminderDate
                                   )}
                                 </p>
+
                               </div>
 
                               <span
@@ -636,32 +773,41 @@ export default async function DashboardPage() {
                               >
                                 {status}
                               </span>
+
                             </div>
+
                           </div>
                         );
                       }
                     )}
+
                   </div>
+
                 )}
+
               </div>
+
             </div>
 
-            {/* ====================================== */}
-            {/* QUICK ACTIONS */}
-            {/* ====================================== */}
+            {/* ======================================
+                QUICK ACTIONS
+            ====================================== */}
 
             <div>
+
               <h2 className="mb-4 text-xl font-semibold">
                 Quick Actions
               </h2>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+
                 {/* AI */}
 
                 <a
                   href="/assistant"
                   className="rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-cyan-500/50 hover:bg-slate-900/80"
                 >
+
                   <div className="mb-3 text-2xl">
                     🤖
                   </div>
@@ -673,6 +819,7 @@ export default async function DashboardPage() {
                   <p className="mt-1 text-sm text-slate-400">
                     Talk with DigitalDost AI
                   </p>
+
                 </a>
 
                 {/* TASK */}
@@ -681,6 +828,7 @@ export default async function DashboardPage() {
                   href="/tasks"
                   className="rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-cyan-500/50 hover:bg-slate-900/80"
                 >
+
                   <div className="mb-3 text-2xl">
                     ✅
                   </div>
@@ -692,6 +840,7 @@ export default async function DashboardPage() {
                   <p className="mt-1 text-sm text-slate-400">
                     Create a new task
                   </p>
+
                 </a>
 
                 {/* REMINDER */}
@@ -700,6 +849,7 @@ export default async function DashboardPage() {
                   href="/reminders"
                   className="rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-cyan-500/50 hover:bg-slate-900/80"
                 >
+
                   <div className="mb-3 text-2xl">
                     🔔
                   </div>
@@ -711,6 +861,7 @@ export default async function DashboardPage() {
                   <p className="mt-1 text-sm text-slate-400">
                     Set a smart reminder
                   </p>
+
                 </a>
 
                 {/* NOTE */}
@@ -719,6 +870,7 @@ export default async function DashboardPage() {
                   href="/notes"
                   className="rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-cyan-500/50 hover:bg-slate-900/80"
                 >
+
                   <div className="mb-3 text-2xl">
                     📝
                   </div>
@@ -730,22 +882,32 @@ export default async function DashboardPage() {
                   <p className="mt-1 text-sm text-slate-400">
                     Write a quick note
                   </p>
+
                 </a>
+
               </div>
+
             </div>
 
-            {/* ====================================== */}
-            {/* FOOTER */}
-            {/* ====================================== */}
+            {/* ======================================
+                FOOTER
+            ====================================== */}
 
             <div className="mt-10 border-t border-slate-800 pt-6">
+
               <p className="text-center text-xs text-slate-500 sm:text-sm">
-                DigitalDost — Your Digital Life, Simplified. 🚀
+                DigitalDost — Your Digital Life,
+                Simplified. 🚀
               </p>
+
             </div>
+
           </section>
+
         </div>
+
       </div>
+
     </main>
   );
 }
