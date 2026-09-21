@@ -291,11 +291,11 @@ export default async function DashboardPage() {
 
             <div className="mb-6 sm:mb-8">
               <p className="mb-2 text-sm text-cyan-400">
-                Welcome back 👋
+                Welcome back {user.name}👋
               </p>
 
               <h1 className="text-2xl font-bold sm:text-4xl">
-                Hello, {user.name}
+                Namaste🙏🙏 {user.name}
               </h1>
 
               <p className="mt-2 text-sm text-slate-400 sm:text-base">

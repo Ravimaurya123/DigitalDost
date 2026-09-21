@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 export default function AIHistoryPage() {
   const [commands, setCommands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [clearing, setClearing] = useState(false);
+
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
+
   const [error, setError] = useState("");
 
   async function loadHistory() {
@@ -21,13 +25,15 @@ export default function AIHistoryPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || "Failed to load history.");
+        setError(
+          data.message || "Failed to load history."
+        );
         return;
       }
 
       setCommands(data.commands || []);
     } catch (error) {
-      console.error(error);
+      console.error("LOAD AI HISTORY ERROR:", error);
       setError("Something went wrong.");
     } finally {
       setLoading(false);
@@ -43,6 +49,7 @@ export default function AIHistoryPage() {
 
     try {
       setClearing(true);
+      setError("");
 
       const response = await fetch("/api/ai-history", {
         method: "DELETE",
@@ -51,14 +58,16 @@ export default function AIHistoryPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || "Failed to clear history.");
+        setError(
+          data.message || "Failed to clear history."
+        );
         return;
       }
 
       setCommands([]);
     } catch (error) {
-      console.error(error);
-      alert("Something went wrong.");
+      console.error("CLEAR HISTORY ERROR:", error);
+      setError("Something went wrong.");
     } finally {
       setClearing(false);
     }
@@ -94,43 +103,103 @@ export default function AIHistoryPage() {
     return "•";
   }
 
+  function getStatusClass(status) {
+    if (status === "success") {
+      return "border-emerald-400/20 bg-emerald-400/10 text-emerald-400";
+    }
+
+    if (status === "failed") {
+      return "border-red-400/20 bg-red-400/10 text-red-400";
+    }
+
+    return "border-yellow-400/20 bg-yellow-400/10 text-yellow-400";
+  }
+
+  const filteredCommands = useMemo(() => {
+    return commands.filter((item) => {
+      const query = search.toLowerCase();
+
+      const matchesSearch =
+        item.command
+          ?.toLowerCase()
+          .includes(query) ||
+        item.response
+          ?.toLowerCase()
+          .includes(query) ||
+        item.action
+          ?.toLowerCase()
+          .includes(query);
+
+      if (!matchesSearch) return false;
+
+      if (filter === "success") {
+        return item.status === "success";
+      }
+
+      if (filter === "failed") {
+        return item.status === "failed";
+      }
+
+      if (filter === "cancelled") {
+        return item.status === "cancelled";
+      }
+
+      return true;
+    });
+  }, [commands, search, filter]);
+
+  const successCount = commands.filter(
+    (item) => item.status === "success"
+  ).length;
+
+  const failedCount = commands.filter(
+    (item) => item.status === "failed"
+  ).length;
+
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-      {/* NAVBAR */}
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/85 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/10 text-lg">
+              📜
+            </div>
 
-      <header className="border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
+            <div>
+              <h1 className="text-xl font-bold sm:text-2xl">
+                Digital<span className="text-cyan-400">Dost</span>
+              </h1>
+
+              <p className="text-xs text-slate-500">
+                AI Command History
+              </p>
+            </div>
+          </div>
+
           <Link
             href="/dashboard"
-            className="text-2xl font-bold"
-          >
-            Digital<span className="text-cyan-400">Dost</span>
-          </Link>
-
-          <Link
-            href="/dashboard"
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 transition hover:bg-white/10"
+            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
           >
             ← Dashboard
           </Link>
         </div>
       </header>
 
-      {/* CONTENT */}
-
-      <section className="mx-auto max-w-6xl px-6 py-10">
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-10">
+        {/* HEADER */}
+        <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="mb-2 text-sm font-medium text-cyan-400">
-              AI ACTIVITY
+            <p className="text-sm font-medium uppercase tracking-wider text-cyan-400">
+              AI Activity
             </p>
 
-            <h1 className="text-3xl font-bold md:text-4xl">
-              AI Command History
+            <h1 className="mt-2 text-3xl font-bold sm:text-4xl">
+              Command History
             </h1>
 
-            <p className="mt-2 text-slate-400">
-              View your previous DigitalDost AI commands and actions.
+            <p className="mt-2 max-w-2xl text-slate-400">
+              Review the commands and actions you have
+              performed with DigitalDost AI.
             </p>
           </div>
 
@@ -138,110 +207,155 @@ export default function AIHistoryPage() {
             <button
               onClick={clearHistory}
               disabled={clearing}
-              className="rounded-xl border border-red-500/30 bg-red-500/10 px-5 py-3 text-sm font-medium text-red-400 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-xl border border-red-500/20 bg-red-500/10 px-5 py-3 text-sm font-medium text-red-400 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             >
-              {clearing ? "Clearing..." : "Clear History"}
+              {clearing
+                ? "Clearing..."
+                : "🗑 Clear History"}
             </button>
           )}
         </div>
 
-        {/* ERROR */}
-
         {error && (
-          <div className="mb-6 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-red-400">
-            {error}
+          <div className="mb-5 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+            ⚠️ {error}
           </div>
         )}
 
-        {/* LOADING */}
+        {/* STATS */}
+        <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <StatCard
+            icon="🤖"
+            label="Total Commands"
+            value={commands.length}
+          />
 
+          <StatCard
+            icon="✓"
+            label="Successful"
+            value={successCount}
+          />
+
+          <div className="col-span-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:col-span-1">
+            <div className="mb-3 text-xl">⚠️</div>
+
+            <p className="text-xs text-slate-500">
+              Failed
+            </p>
+
+            <p className="mt-1 text-2xl font-bold text-white">
+              {failedCount}
+            </p>
+          </div>
+        </div>
+
+        {/* FILTERS */}
+        <div className="mb-6 space-y-3">
+          <input
+            value={search}
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+            placeholder="🔍 Search AI commands..."
+            className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/40"
+          />
+
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {[
+              ["all", "All"],
+              ["success", "Successful"],
+              ["failed", "Failed"],
+              ["cancelled", "Cancelled"],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                onClick={() => setFilter(value)}
+                className={`whitespace-nowrap rounded-xl px-4 py-2 text-sm transition ${
+                  filter === value
+                    ? "bg-cyan-500 text-slate-950"
+                    : "border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* CONTENT */}
         {loading ? (
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-10 text-center">
-            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
-
-            <p className="text-slate-400">
-              Loading AI history...
-            </p>
-          </div>
-        ) : commands.length === 0 ? (
-          /* EMPTY STATE */
-
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-12 text-center">
-            <div className="mb-5 text-5xl">🤖</div>
-
-            <h2 className="text-xl font-semibold">
-              No AI commands yet
-            </h2>
-
-            <p className="mx-auto mt-2 max-w-md text-slate-400">
-              Your AI commands will appear here after you use the
-              DigitalDost AI Command Center.
-            </p>
-
-            <Link
-              href="/dashboard"
-              className="mt-6 inline-block rounded-xl bg-cyan-500 px-5 py-3 font-medium text-slate-950 transition hover:bg-cyan-400"
-            >
-              Go to Dashboard
-            </Link>
-          </div>
+          <LoadingState text="Loading AI history..." />
+        ) : filteredCommands.length === 0 ? (
+          <EmptyState
+            icon="🤖"
+            title={
+              commands.length === 0
+                ? "No AI commands yet"
+                : "No commands found"
+            }
+            text={
+              commands.length === 0
+                ? "Your AI commands will appear here after you use DigitalDost."
+                : "Try changing your search or status filter."
+            }
+          />
         ) : (
-          /* HISTORY */
-
-          <div className="space-y-4">
-            {commands.map((item) => (
+          <div className="space-y-3">
+            {filteredCommands.map((item) => (
               <div
                 key={item._id}
-                className="rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:border-cyan-400/20 hover:bg-white/[0.07]"
+                className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:border-cyan-400/20 hover:bg-white/[0.06] sm:p-5"
               >
-                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                  <div className="flex gap-4">
-                    <div
-                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-lg ${
-                        item.status === "success"
-                          ? "bg-emerald-500/10 text-emerald-400"
-                          : item.status === "failed"
-                          ? "bg-red-500/10 text-red-400"
-                          : "bg-yellow-500/10 text-yellow-400"
-                      }`}
-                    >
-                      {getStatusIcon(item.status)}
-                    </div>
-
-                    <div>
-                      <div className="mb-1 flex flex-wrap items-center gap-2">
-                        <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-400">
-                          {getActionLabel(item.action)}
-                        </span>
-
-                        <span className="text-xs text-slate-500">
-                          {formatDate(item.createdAt)}
-                        </span>
-                      </div>
-
-                      <p className="text-base font-medium text-white">
-                        {item.command}
-                      </p>
-
-                      {item.response && (
-                        <p className="mt-2 text-sm text-slate-400">
-                          {item.response}
-                        </p>
-                      )}
-                    </div>
+                <div className="flex gap-4">
+                  <div
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border text-lg ${getStatusClass(
+                      item.status
+                    )}`}
+                  >
+                    {getStatusIcon(item.status)}
                   </div>
 
-                  <span
-                    className={`text-xs font-medium uppercase ${
-                      item.status === "success"
-                        ? "text-emerald-400"
-                        : item.status === "failed"
-                        ? "text-red-400"
-                        : "text-yellow-400"
-                    }`}
-                  >
-                    {item.status}
-                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <div className="mb-2 flex flex-wrap items-center gap-2">
+                          <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-400">
+                            {getActionLabel(
+                              item.action
+                            )}
+                          </span>
+
+                          <span
+                            className={`rounded-full border px-3 py-1 text-xs uppercase ${getStatusClass(
+                              item.status
+                            )}`}
+                          >
+                            {item.status}
+                          </span>
+                        </div>
+
+                        <p className="break-words text-sm font-medium leading-6 text-white sm:text-base">
+                          {item.command}
+                        </p>
+                      </div>
+
+                      <span className="shrink-0 text-xs text-slate-600">
+                        {formatDate(item.createdAt)}
+                      </span>
+                    </div>
+
+                    {item.response && (
+                      <div className="mt-4 rounded-xl border border-white/5 bg-slate-950/50 p-3">
+                        <p className="text-xs uppercase tracking-wider text-slate-600">
+                          AI Response
+                        </p>
+
+                        <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-400">
+                          {item.response}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -249,5 +363,56 @@ export default function AIHistoryPage() {
         )}
       </section>
     </main>
+  );
+}
+
+function StatCard({ icon, label, value }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+      <div className="mb-3 text-xl">{icon}</div>
+
+      <p className="text-xs text-slate-500">
+        {label}
+      </p>
+
+      <p className="mt-1 text-2xl font-bold text-white">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function LoadingState({ text }) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center">
+      <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
+
+      <p className="text-sm text-slate-400">
+        {text}
+      </p>
+    </div>
+  );
+}
+
+function EmptyState({ icon, title, text }) {
+  return (
+    <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.03] p-10 text-center">
+      <div className="mb-4 text-4xl">{icon}</div>
+
+      <h2 className="text-lg font-semibold">
+        {title}
+      </h2>
+
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+        {text}
+      </p>
+
+      <Link
+        href="/assistant"
+        className="mt-6 inline-block rounded-xl bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+      >
+        Open AI Assistant
+      </Link>
+    </div>
   );
 }

@@ -2,27 +2,43 @@ import { cookies } from "next/headers";
 
 export async function POST() {
   try {
-    const cookieStore = await cookies();
+    const cookieStore =
+      await cookies();
 
-    cookieStore.set("digitaldost_token", "", {
-      httpOnly: true,
-      expires: new Date(0),
-      path: "/",
-    });
+    cookieStore.set(
+      "digitaldost_token",
+      "",
+      {
+        httpOnly: true,
+        secure:
+          process.env.NODE_ENV ===
+          "production",
+        sameSite: "lax",
+        expires: new Date(0),
+        path: "/",
+      }
+    );
 
     return Response.json({
       success: true,
-      message: "Logout successful",
+      message:
+        "Logged out successfully.",
     });
   } catch (error) {
-    console.error("LOGOUT ERROR:", error);
+    console.error(
+      "LOGOUT ERROR:",
+      error
+    );
 
     return Response.json(
       {
         success: false,
-        message: "Logout failed",
+        message:
+          "Failed to logout.",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }

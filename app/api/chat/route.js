@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/lib/auth";
 import { askAI } from "@/lib/ai";
+import { cleanString } from "@/lib/validation";
 
 export async function POST(request) {
   try {
@@ -9,27 +10,58 @@ export async function POST(request) {
       return Response.json(
         {
           success: false,
-          message: "Unauthorized",
+          message: "Unauthorized. Please login first.",
         },
-        { status: 401 }
+        {
+          status: 401,
+        }
       );
     }
 
-    const body = await request.json();
+    let body;
 
-    const { message } = body;
-
-    if (!message || !message.trim()) {
+    try {
+      body = await request.json();
+    } catch {
       return Response.json(
         {
           success: false,
-          message: "Message is required",
+          message: "Invalid request body.",
         },
-        { status: 400 }
+        {
+          status: 400,
+        }
       );
     }
 
-    const reply = await askAI(message.trim());
+    const message = cleanString(body?.message);
+
+    if (!message) {
+      return Response.json(
+        {
+          success: false,
+          message: "Message is required.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (message.length > 5000) {
+      return Response.json(
+        {
+          success: false,
+          message:
+            "Message must be less than 5000 characters.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const reply = await askAI(message);
 
     return Response.json({
       success: true,
@@ -38,12 +70,49 @@ export async function POST(request) {
   } catch (error) {
     console.error("CHAT API ERROR:", error);
 
+    const message =
+      error?.message || "";
+
+    if (
+      message.toLowerCase().includes("quota")
+    ) {
+      return Response.json(
+        {
+          success: false,
+          message:
+            "Gemini API quota exceeded. Please try again later.",
+        },
+        {
+          status: 429,
+        }
+      );
+    }
+
+    if (
+      message.toLowerCase().includes("invalid") &&
+      message.toLowerCase().includes("api")
+    ) {
+      return Response.json(
+        {
+          success: false,
+          message:
+            "AI service configuration is invalid.",
+        },
+        {
+          status: 503,
+        }
+      );
+    }
+
     return Response.json(
       {
         success: false,
-        message: "Failed to get AI response",
+        message:
+          "AI service is temporarily unavailable.",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }

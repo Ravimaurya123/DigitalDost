@@ -39,12 +39,12 @@ export async function POST(request) {
     }
 
     // Compare password
-    const isPasswordCorrect = await bcrypt.compare(
+    const isPasswordValid = await bcrypt.compare(
       password,
       user.password
     );
 
-    if (!isPasswordCorrect) {
+    if (!isPasswordValid) {
       return Response.json(
         {
           success: false,

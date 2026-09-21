@@ -14,7 +14,8 @@ export default function AICommandCenter() {
 
   const [results, setResults] = useState([]);
 
-  const [confirmation, setConfirmation] = useState(null);
+  const [confirmation, setConfirmation] =
+    useState(null);
 
   // ==========================================
   // EXECUTE COMMAND
@@ -27,7 +28,6 @@ export default function AICommandCenter() {
   ) {
     try {
       setLoading(true);
-
       setMessage("");
       setError("");
 
@@ -51,7 +51,7 @@ export default function AICommandCenter() {
       const data = await response.json();
 
       // ========================================
-      // CONFIRMATION REQUIRED
+      // DELETE CONFIRMATION
       // ========================================
 
       if (
@@ -67,18 +67,15 @@ export default function AICommandCenter() {
         if (confirmationResult) {
           setConfirmation({
             command: commandText,
+
             message:
               confirmationResult.confirmationMessage ||
               "Are you sure you want to continue?",
+
             token:
               confirmationResult.confirmationToken ||
               "",
           });
-
-          /*
-          Show the confirmation box.
-          Do not execute the delete yet.
-          */
 
           setResults([]);
 
@@ -87,7 +84,7 @@ export default function AICommandCenter() {
       }
 
       // ========================================
-      // OLD BACKWARD COMPATIBILITY
+      // OLD CONFIRMATION SUPPORT
       // ========================================
 
       if (
@@ -96,12 +93,13 @@ export default function AICommandCenter() {
       ) {
         setConfirmation({
           command: commandText,
+
           message:
             data.confirmationMessage ||
             "Are you sure you want to continue?",
+
           token:
-            data.confirmationToken ||
-            "",
+            data.confirmationToken || "",
         });
 
         return;
@@ -132,29 +130,18 @@ export default function AICommandCenter() {
       setConfirmation(null);
 
       // ========================================
-      // MULTI-ACTION RESULTS
+      // RESULTS
       // ========================================
 
-      if (
-        Array.isArray(data.results)
-      ) {
+      if (Array.isArray(data.results)) {
         setResults(data.results);
       } else {
         setResults([]);
       }
 
-      /*
-      Clear command only after successful
-      execution.
-      */
-
       setCommand("");
 
-      /*
-      Refresh dashboard so newly created,
-      updated or deleted data appears.
-      */
-
+      // Refresh dashboard data
       router.refresh();
     } catch (error) {
       console.error(
@@ -191,8 +178,7 @@ export default function AICommandCenter() {
 
     await executeCommand(
       command.trim(),
-      false,
-      ""
+      false
     );
   }
 
@@ -215,16 +201,6 @@ export default function AICommandCenter() {
       return;
     }
 
-    /*
-    IMPORTANT:
-
-    We send the exact confirmation token
-    returned by the server.
-
-    Gemini is NOT called again for the
-    delete operation.
-    */
-
     await executeCommand(
       confirmation.command,
       true,
@@ -245,7 +221,7 @@ export default function AICommandCenter() {
   }
 
   // ==========================================
-  // EXAMPLE
+  // USE EXAMPLE
   // ==========================================
 
   function useExample(text) {
@@ -253,9 +229,7 @@ export default function AICommandCenter() {
 
     setMessage("");
     setError("");
-
     setResults([]);
-
     setConfirmation(null);
   }
 
@@ -324,7 +298,7 @@ export default function AICommandCenter() {
   }
 
   // ==========================================
-  // RESULT ACTION NAME
+  // ACTION NAME
   // ==========================================
 
   function getActionName(action) {
@@ -344,7 +318,9 @@ export default function AICommandCenter() {
   // ==========================================
 
   function formatDate(date) {
-    if (!date) return "";
+    if (!date) {
+      return "";
+    }
 
     return new Date(date).toLocaleString(
       "en-IN",
@@ -355,521 +331,497 @@ export default function AICommandCenter() {
     );
   }
 
+  // ==========================================
+  // EXAMPLES
+  // ==========================================
+
+  const examples = [
+    "Create a task to practice Java tomorrow",
+    "Remind me to call Mom at 7 PM today",
+    "Create a note called DSA with binary search topics",
+    "Complete my Java task",
+    "Search my tasks for Java",
+    "Delete my old task",
+  ];
+
+  // ==========================================
+  // RENDER
+  // ==========================================
+
   return (
-    <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-2xl p-6 mb-8">
+    <div className="relative mb-8 overflow-hidden rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-slate-900 p-4 shadow-xl shadow-cyan-950/10 sm:p-6">
 
-      {/* ======================================
-          HEADER
-      ====================================== */}
+      {/* ====================================== */}
+      {/* DECORATIVE BACKGROUND */}
+      {/* ====================================== */}
 
-      <div className="mb-5">
+      <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-cyan-400/10 blur-3xl" />
 
-        <p className="text-cyan-400 text-sm font-medium">
-          🤖 DigitalDost AI Command Center
-        </p>
+      <div className="pointer-events-none absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-blue-500/10 blur-3xl" />
 
-        <h2 className="text-2xl font-bold mt-2">
-          Tell DigitalDost what to do
-        </h2>
+      <div className="relative">
 
-        <p className="text-slate-400 mt-2">
-          Create, update, complete, delete
-          and search your tasks, reminders
-          and notes using natural language.
-        </p>
+        {/* ====================================== */}
+        {/* HEADER */}
+        {/* ====================================== */}
 
-        <p className="text-slate-500 text-sm mt-2">
-          💡 You can also give multiple commands
-          in one sentence.
-        </p>
+        <div className="mb-6">
 
-      </div>
+          <div className="mb-3 flex items-center gap-3">
 
-      {/* ======================================
-          COMMAND FORM
-      ====================================== */}
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-cyan-400/20 bg-cyan-400/10 text-xl">
+              🤖
+            </div>
 
-      <form onSubmit={handleCommand}>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-cyan-400">
+                AI Command Center
+              </p>
 
-        <div className="flex flex-col md:flex-row gap-3">
-
-          <input
-            type="text"
-            value={command}
-            onChange={(event) => {
-              setCommand(
-                event.target.value
-              );
-
-              setMessage("");
-              setError("");
-
-              setConfirmation(null);
-            }}
-            placeholder="Example: Create a Java task tomorrow and remind me at 7 PM"
-            className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 outline-none focus:border-cyan-500"
-            disabled={loading}
-          />
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold px-6 py-3 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading
-              ? "🤖 Processing..."
-              : "⚡ Execute"}
-          </button>
-
-        </div>
-
-      </form>
-
-      {/* ======================================
-          EXAMPLES
-      ====================================== */}
-
-      <div className="mt-4">
-
-        <p className="text-slate-500 text-xs mb-2">
-          Try an example:
-        </p>
-
-        <div className="flex flex-wrap gap-2">
-
-          {/* TASK */}
-
-          <button
-            type="button"
-            onClick={() =>
-              useExample(
-                "Add a task to complete DSA today"
-              )
-            }
-            className="text-xs bg-slate-900 border border-slate-700 hover:border-cyan-500/50 text-slate-300 hover:text-cyan-400 px-3 py-2 rounded-lg transition"
-          >
-            Add DSA task
-          </button>
-
-          {/* REMINDER */}
-
-          <button
-            type="button"
-            onClick={() =>
-              useExample(
-                "Remind me to study Java tomorrow at 10 AM"
-              )
-            }
-            className="text-xs bg-slate-900 border border-slate-700 hover:border-cyan-500/50 text-slate-300 hover:text-cyan-400 px-3 py-2 rounded-lg transition"
-          >
-            Java reminder
-          </button>
-
-          {/* NOTE */}
-
-          <button
-            type="button"
-            onClick={() =>
-              useExample(
-                "Create a note about my DigitalDost project"
-              )
-            }
-            className="text-xs bg-slate-900 border border-slate-700 hover:border-cyan-500/50 text-slate-300 hover:text-cyan-400 px-3 py-2 rounded-lg transition"
-          >
-            DigitalDost note
-          </button>
-
-          {/* COMPLETE */}
-
-          <button
-            type="button"
-            onClick={() =>
-              useExample(
-                "Complete my DSA task"
-              )
-            }
-            className="text-xs bg-slate-900 border border-slate-700 hover:border-cyan-500/50 text-slate-300 hover:text-cyan-400 px-3 py-2 rounded-lg transition"
-          >
-            Complete task
-          </button>
-
-          {/* SEARCH */}
-
-          <button
-            type="button"
-            onClick={() =>
-              useExample(
-                "Show my tasks"
-              )
-            }
-            className="text-xs bg-slate-900 border border-slate-700 hover:border-cyan-500/50 text-slate-300 hover:text-cyan-400 px-3 py-2 rounded-lg transition"
-          >
-            Show tasks
-          </button>
-
-          {/* DELETE */}
-
-          <button
-            type="button"
-            onClick={() =>
-              useExample(
-                "Delete my DSA task"
-              )
-            }
-            className="text-xs bg-slate-900 border border-slate-700 hover:border-red-500/50 text-slate-300 hover:text-red-400 px-3 py-2 rounded-lg transition"
-          >
-            Delete task
-          </button>
-
-          {/* MULTI ACTION */}
-
-          <button
-            type="button"
-            onClick={() =>
-              useExample(
-                "Create a task to study Java tomorrow and remind me at 7 PM"
-              )
-            }
-            className="text-xs bg-slate-900 border border-cyan-500/30 hover:border-cyan-500/60 text-cyan-300 hover:text-cyan-400 px-3 py-2 rounded-lg transition"
-          >
-            ⚡ Multi Action
-          </button>
-
-        </div>
-
-      </div>
-
-      {/* ======================================
-          CONFIRMATION BOX
-      ====================================== */}
-
-      {confirmation && (
-        <div className="mt-5 bg-red-500/10 border border-red-500/30 rounded-xl p-5">
-
-          <p className="text-red-400 font-semibold">
-            ⚠️ Confirmation Required
-          </p>
-
-          <p className="text-slate-300 text-sm mt-2">
-            {confirmation.message}
-          </p>
-
-          <p className="text-slate-500 text-xs mt-2">
-            This confirmation is valid for 5 minutes.
-          </p>
-
-          <div className="flex gap-3 mt-4">
-
-            <button
-              type="button"
-              onClick={confirmDelete}
-              disabled={loading}
-              className="bg-red-500 hover:bg-red-400 text-white font-semibold px-4 py-2 rounded-lg transition disabled:opacity-50"
-            >
-              {loading
-                ? "Deleting..."
-                : "Confirm Delete"}
-            </button>
-
-            <button
-              type="button"
-              onClick={cancelDelete}
-              disabled={loading}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-lg transition"
-            >
-              Cancel
-            </button>
+              <p className="text-xs text-slate-500">
+                DigitalDost Intelligence
+              </p>
+            </div>
 
           </div>
 
-        </div>
-      )}
+          <h2 className="text-2xl font-bold sm:text-3xl">
+            Tell DigitalDost what to do
+          </h2>
 
-      {/* ======================================
-          SUCCESS MESSAGE
-      ====================================== */}
-
-      {message && (
-        <div className="mt-4 bg-green-500/10 border border-green-500/20 rounded-xl p-4">
-
-          <p className="text-green-400 text-sm">
-            ✅ {message}
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base">
+            Create, update, complete, delete and
+            search your tasks, reminders and notes
+            using natural language.
           </p>
 
-        </div>
-      )}
+          <div className="mt-3 inline-flex max-w-full items-start gap-2 rounded-xl border border-cyan-400/10 bg-cyan-400/5 px-3 py-2 text-xs text-slate-400 sm:text-sm">
+            <span>💡</span>
 
-      {/* ======================================
-          ERROR MESSAGE
-      ====================================== */}
-
-      {error && (
-        <div className="mt-4 bg-red-500/10 border border-red-500/20 rounded-xl p-4">
-
-          <p className="text-red-400 text-sm">
-            ❌ {error}
-          </p>
-
-        </div>
-      )}
-
-      {/* ======================================
-          MULTI-ACTION RESULTS
-      ====================================== */}
-
-      {results.length > 0 && (
-        <div className="mt-5">
-
-          <div className="flex items-center justify-between mb-3">
-
-            <p className="text-slate-300 text-sm font-semibold">
-              ⚡ Command Results
-            </p>
-
-            <span className="text-xs text-slate-500">
-              {results.length} action
-              {results.length > 1
-                ? "s"
-                : ""}
+            <span>
+              You can give multiple commands in
+              one sentence.
             </span>
+          </div>
+
+        </div>
+
+        {/* ====================================== */}
+        {/* COMMAND FORM */}
+        {/* ====================================== */}
+
+        <form onSubmit={handleCommand}>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+
+            <div className="relative flex-1">
+
+              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
+                ✨
+              </span>
+
+              <input
+                type="text"
+                value={command}
+                onChange={(event) => {
+                  setCommand(
+                    event.target.value
+                  );
+
+                  setMessage("");
+                  setError("");
+                  setConfirmation(null);
+                }}
+                placeholder="Example: Create a task to practice Java tomorrow"
+                className="w-full rounded-xl border border-slate-700 bg-slate-950/80 py-3.5 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/10 sm:text-base"
+                disabled={loading}
+              />
+
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex min-h-[50px] items-center justify-center gap-2 rounded-xl bg-cyan-500 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {loading ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
+
+                  <span>
+                    Processing...
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span>⚡</span>
+
+                  <span>
+                    Execute
+                  </span>
+                </>
+              )}
+            </button>
 
           </div>
 
-          <div className="space-y-3">
+        </form>
 
-            {results.map(
-              (result, index) => (
-                <div
-                  key={`${result.action}-${index}`}
-                  className={`rounded-xl p-4 border ${
-                    result.success
-                      ? "bg-green-500/5 border-green-500/20"
-                      : result.requiresConfirmation
-                      ? "bg-yellow-500/5 border-yellow-500/20"
-                      : "bg-red-500/5 border-red-500/20"
-                  }`}
+        {/* ====================================== */}
+        {/* EXAMPLES */}
+        {/* ====================================== */}
+
+        <div className="mt-4">
+
+          <p className="mb-2 text-xs font-medium uppercase tracking-wider text-slate-500">
+            Try an example
+          </p>
+
+          <div className="flex gap-2 overflow-x-auto pb-2">
+
+            {examples.map(
+              (example, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() =>
+                    useExample(example)
+                  }
+                  disabled={loading}
+                  className="shrink-0 rounded-full border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-400 transition hover:border-cyan-400/30 hover:bg-cyan-400/5 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-
-                  <div className="flex items-start gap-3">
-
-                    <div className="text-xl">
-                      {getActionIcon(
-                        result.action
-                      )}
-                    </div>
-
-                    <div className="flex-1">
-
-                      <div className="flex flex-wrap items-center gap-2">
-
-                        <span className="text-xs font-medium text-cyan-400">
-                          {getActionName(
-                            result.action
-                          )}
-                        </span>
-
-                        <span
-                          className={`text-xs ${
-                            result.success
-                              ? "text-green-400"
-                              : result.requiresConfirmation
-                              ? "text-yellow-400"
-                              : "text-red-400"
-                          }`}
-                        >
-                          {result.success
-                            ? "Success"
-                            : result.requiresConfirmation
-                            ? "Confirmation Required"
-                            : "Failed"}
-                        </span>
-
-                      </div>
-
-                      <p className="text-slate-300 text-sm mt-1">
-                        {result.message}
-                      </p>
-
-                      {/* TASK DETAILS */}
-
-                      {result.task && (
-                        <div className="mt-3 text-xs text-slate-500 space-y-1">
-
-                          <p>
-                            📌 Title:{" "}
-                            {result.task.title}
-                          </p>
-
-                          {result.task.priority && (
-                            <p>
-                              🎯 Priority:{" "}
-                              {
-                                result.task
-                                  .priority
-                              }
-                            </p>
-                          )}
-
-                          {result.task.dueDate && (
-                            <p>
-                              📅 Due:{" "}
-                              {formatDate(
-                                result.task
-                                  .dueDate
-                              )}
-                            </p>
-                          )}
-
-                        </div>
-                      )}
-
-                      {/* REMINDER DETAILS */}
-
-                      {result.reminder && (
-                        <div className="mt-3 text-xs text-slate-500 space-y-1">
-
-                          <p>
-                            🔔 Title:{" "}
-                            {
-                              result.reminder
-                                .title
-                            }
-                          </p>
-
-                          {result.reminder
-                            .reminderDate && (
-                            <p>
-                              📅 Reminder:{" "}
-                              {formatDate(
-                                result
-                                  .reminder
-                                  .reminderDate
-                              )}
-                            </p>
-                          )}
-
-                        </div>
-                      )}
-
-                      {/* NOTE DETAILS */}
-
-                      {result.note && (
-                        <div className="mt-3 text-xs text-slate-500">
-
-                          <p>
-                            📝 Title:{" "}
-                            {result.note.title}
-                          </p>
-
-                          {result.note.content && (
-                            <p className="mt-1 whitespace-pre-wrap">
-                              {result.note.content}
-                            </p>
-                          )}
-
-                        </div>
-                      )}
-
-                      {/* SEARCH RESULTS */}
-
-                      {Array.isArray(
-                        result.results
-                      ) && (
-                        <div className="mt-3 space-y-2">
-
-                          {result.results.length ===
-                          0 ? (
-                            <p className="text-xs text-slate-500">
-                              No matching results
-                              found.
-                            </p>
-                          ) : (
-                            result.results.map(
-                              (item) => (
-                                <div
-                                  key={
-                                    item._id
-                                  }
-                                  className="bg-slate-900/70 border border-slate-700 rounded-lg p-3"
-                                >
-
-                                  <h4 className="text-white text-sm font-medium">
-                                    {item.title}
-                                  </h4>
-
-                                  {item.description && (
-                                    <p className="text-slate-400 text-xs mt-1">
-                                      {
-                                        item.description
-                                      }
-                                    </p>
-                                  )}
-
-                                  {item.content && (
-                                    <p className="text-slate-400 text-xs mt-1 whitespace-pre-wrap">
-                                      {
-                                        item.content
-                                      }
-                                    </p>
-                                  )}
-
-                                  {item.priority && (
-                                    <p className="text-xs text-cyan-400 mt-2">
-                                      Priority:{" "}
-                                      {
-                                        item.priority
-                                      }
-                                    </p>
-                                  )}
-
-                                  {item.dueDate && (
-                                    <p className="text-xs text-slate-500 mt-1">
-                                      Due:{" "}
-                                      {formatDate(
-                                        item.dueDate
-                                      )}
-                                    </p>
-                                  )}
-
-                                  {item.reminderDate && (
-                                    <p className="text-xs text-slate-500 mt-1">
-                                      Reminder:{" "}
-                                      {formatDate(
-                                        item.reminderDate
-                                      )}
-                                    </p>
-                                  )}
-
-                                  {typeof item.completed ===
-                                    "boolean" && (
-                                    <p className="text-xs mt-2">
-                                      {item.completed
-                                        ? "✅ Completed"
-                                        : "⏳ Pending"}
-                                    </p>
-                                  )}
-
-                                </div>
-                              )
-                            )
-                          )}
-
-                        </div>
-                      )}
-
-                    </div>
-
-                  </div>
-
-                </div>
+                  {example}
+                </button>
               )
             )}
 
           </div>
 
         </div>
-      )}
 
+        {/* ====================================== */}
+        {/* SUCCESS MESSAGE */}
+        {/* ====================================== */}
+
+        {message && (
+          <div className="mt-5 flex items-start gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
+              ✓
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold text-emerald-400">
+                Done
+              </p>
+
+              <p className="mt-1 break-words text-sm text-emerald-300/80">
+                {message}
+              </p>
+            </div>
+
+          </div>
+        )}
+
+        {/* ====================================== */}
+        {/* ERROR MESSAGE */}
+        {/* ====================================== */}
+
+        {error && (
+          <div className="mt-5 flex items-start gap-3 rounded-2xl border border-red-500/20 bg-red-500/10 p-4">
+
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-500/10 text-red-400">
+              !
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold text-red-400">
+                Something went wrong
+              </p>
+
+              <p className="mt-1 break-words text-sm text-red-300/80">
+                {error}
+              </p>
+            </div>
+
+          </div>
+        )}
+
+        {/* ====================================== */}
+        {/* DELETE CONFIRMATION */}
+        {/* ====================================== */}
+
+        {confirmation && (
+          <div className="mt-5 rounded-2xl border border-yellow-500/30 bg-yellow-500/5 p-4 sm:p-5">
+
+            <div className="flex items-start gap-3">
+
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-yellow-500/10 text-xl">
+                ⚠️
+              </div>
+
+              <div className="min-w-0">
+
+                <h3 className="font-semibold text-yellow-400">
+                  Confirm Delete
+                </h3>
+
+                <p className="mt-1 break-words text-sm leading-6 text-slate-300">
+                  {confirmation.message}
+                </p>
+
+                <p className="mt-2 text-xs text-slate-500">
+                  This confirmation is valid for
+                  5 minutes.
+                </p>
+
+              </div>
+
+            </div>
+
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+
+              <button
+                type="button"
+                onClick={cancelDelete}
+                disabled={loading}
+                className="rounded-xl border border-slate-700 bg-slate-900 px-5 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={confirmDelete}
+                disabled={loading}
+                className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-400 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {loading
+                  ? "Deleting..."
+                  : "Confirm Delete"}
+              </button>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* ====================================== */}
+        {/* RESULTS */}
+        {/* ====================================== */}
+
+        {results.length > 0 && (
+          <div className="mt-6">
+
+            <div className="mb-3 flex items-center justify-between">
+
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+                  Command Results
+                </p>
+
+                <h3 className="mt-1 text-lg font-semibold">
+                  {results.length} action
+                  {results.length !== 1
+                    ? "s"
+                    : ""}{" "}
+                  processed
+                </h3>
+              </div>
+
+              <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs text-cyan-400">
+                {results.length}
+              </span>
+
+            </div>
+
+            <div className="space-y-3">
+
+              {results.map(
+                (result, index) => {
+
+                  const success =
+                    result.success !== false;
+
+                  return (
+                    <div
+                      key={
+                        result._id ||
+                        index
+                      }
+                      className={`rounded-2xl border p-4 transition ${
+                        success
+                          ? "border-slate-700 bg-slate-900/70"
+                          : "border-red-500/20 bg-red-500/5"
+                      }`}
+                    >
+
+                      <div className="flex items-start gap-3">
+
+                        <div
+                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg ${
+                            success
+                              ? "bg-cyan-400/10"
+                              : "bg-red-500/10"
+                          }`}
+                        >
+                          {success
+                            ? getActionIcon(
+                                result.action
+                              )
+                            : "✕"}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+
+                          <div className="flex flex-wrap items-center gap-2">
+
+                            <span className="rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-300">
+                              {getActionName(
+                                result.action
+                              )}
+                            </span>
+
+                            <span
+                              className={`text-xs ${
+                                success
+                                  ? "text-emerald-400"
+                                  : "text-red-400"
+                              }`}
+                            >
+                              {success
+                                ? "Success"
+                                : "Failed"}
+                            </span>
+
+                          </div>
+
+                          {result.message && (
+                            <p className="mt-2 break-words text-sm leading-6 text-slate-300">
+                              {result.message}
+                            </p>
+                          )}
+
+                          {/* TASK DETAILS */}
+
+                          {result.task && (
+                            <div className="mt-3 rounded-xl border border-slate-800 bg-slate-950/70 p-3">
+
+                              <p className="font-medium text-white">
+                                {result.task.title}
+                              </p>
+
+                              {result.task.description && (
+                                <p className="mt-1 text-xs text-slate-400">
+                                  {
+                                    result.task
+                                      .description
+                                  }
+                                </p>
+                              )}
+
+                              <div className="mt-2 flex flex-wrap gap-2">
+
+                                {result.task
+                                  .priority && (
+                                  <span className="rounded-full bg-yellow-500/10 px-2 py-1 text-xs text-yellow-400">
+                                    Priority:{" "}
+                                    {
+                                      result
+                                        .task
+                                        .priority
+                                    }
+                                  </span>
+                                )}
+
+                                {result.task
+                                  .dueDate && (
+                                  <span className="rounded-full bg-cyan-500/10 px-2 py-1 text-xs text-cyan-400">
+                                    Due:{" "}
+                                    {formatDate(
+                                      result.task
+                                        .dueDate
+                                    )}
+                                  </span>
+                                )}
+
+                              </div>
+
+                            </div>
+                          )}
+
+                          {/* REMINDER DETAILS */}
+
+                          {result.reminder && (
+                            <div className="mt-3 rounded-xl border border-slate-800 bg-slate-950/70 p-3">
+
+                              <p className="font-medium text-white">
+                                {result.reminder.title}
+                              </p>
+
+                              {result.reminder
+                                .description && (
+                                <p className="mt-1 text-xs text-slate-400">
+                                  {
+                                    result
+                                      .reminder
+                                      .description
+                                  }
+                                </p>
+                              )}
+
+                              {result.reminder
+                                .reminderDate && (
+                                <p className="mt-2 text-xs text-cyan-400">
+                                  🔔{" "}
+                                  {formatDate(
+                                    result
+                                      .reminder
+                                      .reminderDate
+                                  )}
+                                </p>
+                              )}
+
+                            </div>
+                          )}
+
+                          {/* NOTE DETAILS */}
+
+                          {result.note && (
+                            <div className="mt-3 rounded-xl border border-slate-800 bg-slate-950/70 p-3">
+
+                              <p className="font-medium text-white">
+                                {result.note.title}
+                              </p>
+
+                              {result.note
+                                .content && (
+                                <p className="mt-1 line-clamp-3 text-xs leading-5 text-slate-400">
+                                  {
+                                    result.note
+                                      .content
+                                  }
+                                </p>
+                              )}
+
+                            </div>
+                          )}
+
+                        </div>
+
+                      </div>
+
+                    </div>
+                  );
+                }
+              )}
+
+            </div>
+
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }
