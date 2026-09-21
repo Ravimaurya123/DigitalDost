@@ -101,12 +101,9 @@ export default function NotesPage() {
     if (!confirmed) return;
 
     try {
-      const response = await fetch(
-        `/api/notes/${note._id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`/api/notes/${note._id}`, {
+        method: "DELETE",
+      });
 
       const data = await response.json();
 
@@ -153,18 +150,19 @@ export default function NotesPage() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
+      {/* HEADER */}
       <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
           <Link
             href="/dashboard"
-            className="text-2xl font-bold"
+            className="dd-link text-2xl font-bold"
           >
             Digital<span className="text-cyan-400">Dost</span>
           </Link>
 
           <Link
             href="/dashboard"
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
+            className="dd-button rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300"
           >
             ← Dashboard
           </Link>
@@ -172,6 +170,7 @@ export default function NotesPage() {
       </header>
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-10">
+        {/* PAGE TITLE */}
         <div className="mb-8">
           <p className="text-sm font-medium uppercase tracking-wider text-cyan-400">
             Personal Knowledge
@@ -186,18 +185,21 @@ export default function NotesPage() {
           </p>
         </div>
 
+        {/* ERROR */}
         {error && (
-          <div className="mb-5 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+          <div className="dd-card mb-5 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
             {error}
           </div>
         )}
 
+        {/* SUCCESS */}
         {success && (
-          <div className="mb-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-400">
+          <div className="dd-card mb-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-400">
             {success}
           </div>
         )}
 
+        {/* STATS */}
         <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatCard
             label="Total Notes"
@@ -211,11 +213,13 @@ export default function NotesPage() {
             icon="🔍"
           />
 
-          <div className="col-span-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:col-span-1">
-            <div className="mb-3 text-xl">💡</div>
+          <div className="dd-card col-span-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:col-span-1">
+            <div className="dd-hover-icon mb-3 text-xl">💡</div>
+
             <p className="text-xs text-slate-500">
               Tip
             </p>
+
             <p className="mt-1 text-sm font-medium text-slate-200">
               Keep your notes short and organized.
             </p>
@@ -223,7 +227,8 @@ export default function NotesPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[350px_1fr]">
-          <section className="h-fit rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+          {/* CREATE NOTE */}
+          <section className="dd-card h-fit rounded-3xl border border-white/10 bg-white/[0.04] p-5">
             <div className="mb-5">
               <h2 className="text-xl font-semibold">
                 Create New Note
@@ -234,10 +239,8 @@ export default function NotesPage() {
               </p>
             </div>
 
-            <form
-              onSubmit={addNote}
-              className="space-y-4"
-            >
+            <form onSubmit={addNote} className="space-y-4">
+              {/* TITLE */}
               <div>
                 <label className="mb-2 block text-sm text-slate-300">
                   Note title
@@ -245,14 +248,13 @@ export default function NotesPage() {
 
                 <input
                   value={title}
-                  onChange={(e) =>
-                    setTitle(e.target.value)
-                  }
+                  onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Java DSA Notes"
-                  className="w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/50"
+                  className="dd-input w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600"
                 />
               </div>
 
+              {/* CONTENT */}
               <div>
                 <label className="mb-2 block text-sm text-slate-300">
                   Note content
@@ -260,37 +262,37 @@ export default function NotesPage() {
 
                 <textarea
                   value={content}
-                  onChange={(e) =>
-                    setContent(e.target.value)
-                  }
+                  onChange={(e) => setContent(e.target.value)}
                   placeholder="Write your note here..."
                   rows={9}
-                  className="w-full resize-none rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/50"
+                  className="dd-input w-full resize-none rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-slate-600"
                 />
               </div>
 
+              {/* SAVE */}
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full rounded-xl bg-cyan-500 px-4 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
+                className="dd-button w-full rounded-xl bg-cyan-500 px-4 py-3 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving ? "Saving..." : "📝 Save Note"}
               </button>
             </form>
           </section>
 
+          {/* NOTES LIST */}
           <section>
+            {/* SEARCH */}
             <div className="mb-5">
               <input
                 value={search}
-                onChange={(e) =>
-                  setSearch(e.target.value)
-                }
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="🔍 Search notes by title or content..."
-                className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-400/40"
+                className="dd-input w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
               />
             </div>
 
+            {/* STATES */}
             {loading ? (
               <LoadingState text="Loading notes..." />
             ) : filteredNotes.length === 0 ? (
@@ -308,11 +310,11 @@ export default function NotesPage() {
                 {filteredNotes.map((note) => (
                   <div
                     key={note._id}
-                    className="group rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-0.5 hover:border-cyan-400/20 hover:bg-white/[0.06]"
+                    className="dd-card group rounded-2xl border border-white/10 bg-white/[0.04] p-5"
                   >
                     <div className="mb-4 flex items-start justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-400/10 text-lg">
+                        <div className="dd-hover-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-400/10 text-lg">
                           📝
                         </div>
 
@@ -327,11 +329,10 @@ export default function NotesPage() {
                         </div>
                       </div>
 
+                      {/* DELETE */}
                       <button
-                        onClick={() =>
-                          deleteNote(note)
-                        }
-                        className="rounded-lg px-2 py-2 text-xs text-red-400 opacity-100 transition hover:bg-red-500/10 sm:opacity-0 sm:group-hover:opacity-100"
+                        onClick={() => deleteNote(note)}
+                        className="dd-button rounded-lg px-2 py-2 text-xs text-red-400 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                       >
                         Delete
                       </button>
@@ -342,7 +343,7 @@ export default function NotesPage() {
                     </p>
 
                     <div className="mt-5 border-t border-white/5 pt-4">
-                      <span className="text-xs text-cyan-400">
+                      <span className="dd-link text-xs text-cyan-400">
                         Personal Note
                       </span>
                     </div>
@@ -357,10 +358,16 @@ export default function NotesPage() {
   );
 }
 
+/* =========================
+   STAT CARD
+========================= */
+
 function StatCard({ label, value, icon }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-      <div className="mb-3 text-xl">{icon}</div>
+    <div className="dd-card rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+      <div className="dd-hover-icon mb-3 text-xl">
+        {icon}
+      </div>
 
       <p className="text-xs text-slate-500">
         {label}
@@ -373,9 +380,13 @@ function StatCard({ label, value, icon }) {
   );
 }
 
+/* =========================
+   LOADING STATE
+========================= */
+
 function LoadingState({ text }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center">
+    <div className="dd-card rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center">
       <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
 
       <p className="text-sm text-slate-400">
@@ -385,10 +396,14 @@ function LoadingState({ text }) {
   );
 }
 
+/* =========================
+   EMPTY STATE
+========================= */
+
 function EmptyState({ icon, title, text }) {
   return (
-    <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.03] p-10 text-center">
-      <div className="mb-4 text-4xl">
+    <div className="dd-card rounded-3xl border border-dashed border-white/10 bg-white/[0.03] p-10 text-center">
+      <div className="dd-hover-icon mb-4 text-4xl">
         {icon}
       </div>
 

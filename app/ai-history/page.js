@@ -25,9 +25,7 @@ export default function AIHistoryPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(
-          data.message || "Failed to load history."
-        );
+        setError(data.message || "Failed to load history.");
         return;
       }
 
@@ -58,9 +56,7 @@ export default function AIHistoryPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(
-          data.message || "Failed to clear history."
-        );
+        setError(data.message || "Failed to clear history.");
         return;
       }
 
@@ -91,9 +87,7 @@ export default function AIHistoryPage() {
 
     return action
       .replaceAll("_", " ")
-      .replace(/\b\w/g, (letter) =>
-        letter.toUpperCase()
-      );
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
   }
 
   function getStatusIcon(status) {
@@ -120,15 +114,9 @@ export default function AIHistoryPage() {
       const query = search.toLowerCase();
 
       const matchesSearch =
-        item.command
-          ?.toLowerCase()
-          .includes(query) ||
-        item.response
-          ?.toLowerCase()
-          .includes(query) ||
-        item.action
-          ?.toLowerCase()
-          .includes(query);
+        item.command?.toLowerCase().includes(query) ||
+        item.response?.toLowerCase().includes(query) ||
+        item.action?.toLowerCase().includes(query);
 
       if (!matchesSearch) return false;
 
@@ -158,10 +146,11 @@ export default function AIHistoryPage() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
+      {/* HEADER */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/10 text-lg">
+            <div className="dd-hover-icon flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/10 text-lg">
               📜
             </div>
 
@@ -178,7 +167,7 @@ export default function AIHistoryPage() {
 
           <Link
             href="/dashboard"
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
+            className="dd-button dd-link rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300"
           >
             ← Dashboard
           </Link>
@@ -198,8 +187,8 @@ export default function AIHistoryPage() {
             </h1>
 
             <p className="mt-2 max-w-2xl text-slate-400">
-              Review the commands and actions you have
-              performed with DigitalDost AI.
+              Review the commands and actions you have performed with
+              DigitalDost AI.
             </p>
           </div>
 
@@ -207,17 +196,16 @@ export default function AIHistoryPage() {
             <button
               onClick={clearHistory}
               disabled={clearing}
-              className="w-full rounded-xl border border-red-500/20 bg-red-500/10 px-5 py-3 text-sm font-medium text-red-400 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+              className="dd-button w-full rounded-xl border border-red-500/20 bg-red-500/10 px-5 py-3 text-sm font-medium text-red-400 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             >
-              {clearing
-                ? "Clearing..."
-                : "🗑 Clear History"}
+              {clearing ? "Clearing..." : "🗑 Clear History"}
             </button>
           )}
         </div>
 
+        {/* ERROR */}
         {error && (
-          <div className="mb-5 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+          <div className="dd-card mb-5 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
             ⚠️ {error}
           </div>
         )}
@@ -236,8 +224,8 @@ export default function AIHistoryPage() {
             value={successCount}
           />
 
-          <div className="col-span-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:col-span-1">
-            <div className="mb-3 text-xl">⚠️</div>
+          <div className="dd-card col-span-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:col-span-1">
+            <div className="dd-hover-icon mb-3 text-xl">⚠️</div>
 
             <p className="text-xs text-slate-500">
               Failed
@@ -253,11 +241,9 @@ export default function AIHistoryPage() {
         <div className="mb-6 space-y-3">
           <input
             value={search}
-            onChange={(e) =>
-              setSearch(e.target.value)
-            }
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="🔍 Search AI commands..."
-            className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/40"
+            className="dd-input w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600"
           />
 
           <div className="flex gap-2 overflow-x-auto pb-1">
@@ -270,10 +256,10 @@ export default function AIHistoryPage() {
               <button
                 key={value}
                 onClick={() => setFilter(value)}
-                className={`whitespace-nowrap rounded-xl px-4 py-2 text-sm transition ${
+                className={`dd-button whitespace-nowrap rounded-xl px-4 py-2 text-sm ${
                   filter === value
                     ? "bg-cyan-500 text-slate-950"
-                    : "border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
+                    : "border border-white/10 bg-white/5 text-slate-300"
                 }`}
               >
                 {label}
@@ -304,11 +290,11 @@ export default function AIHistoryPage() {
             {filteredCommands.map((item) => (
               <div
                 key={item._id}
-                className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:border-cyan-400/20 hover:bg-white/[0.06] sm:p-5"
+                className="dd-card rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:p-5"
               >
                 <div className="flex gap-4">
                   <div
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border text-lg ${getStatusClass(
+                    className={`dd-hover-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border text-lg ${getStatusClass(
                       item.status
                     )}`}
                   >
@@ -319,10 +305,8 @@ export default function AIHistoryPage() {
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div className="min-w-0">
                         <div className="mb-2 flex flex-wrap items-center gap-2">
-                          <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-400">
-                            {getActionLabel(
-                              item.action
-                            )}
+                          <span className="dd-card rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-400">
+                            {getActionLabel(item.action)}
                           </span>
 
                           <span
@@ -345,7 +329,7 @@ export default function AIHistoryPage() {
                     </div>
 
                     {item.response && (
-                      <div className="mt-4 rounded-xl border border-white/5 bg-slate-950/50 p-3">
+                      <div className="dd-card mt-4 rounded-xl border border-white/5 bg-slate-950/50 p-3">
                         <p className="text-xs uppercase tracking-wider text-slate-600">
                           AI Response
                         </p>
@@ -368,8 +352,10 @@ export default function AIHistoryPage() {
 
 function StatCard({ icon, label, value }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-      <div className="mb-3 text-xl">{icon}</div>
+    <div className="dd-card rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+      <div className="dd-hover-icon mb-3 text-xl">
+        {icon}
+      </div>
 
       <p className="text-xs text-slate-500">
         {label}
@@ -384,8 +370,8 @@ function StatCard({ icon, label, value }) {
 
 function LoadingState({ text }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center">
-      <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
+    <div className="dd-card rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center">
+      <div className="dd-hover-icon mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
 
       <p className="text-sm text-slate-400">
         {text}
@@ -396,8 +382,10 @@ function LoadingState({ text }) {
 
 function EmptyState({ icon, title, text }) {
   return (
-    <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.03] p-10 text-center">
-      <div className="mb-4 text-4xl">{icon}</div>
+    <div className="dd-card rounded-3xl border border-dashed border-white/10 bg-white/[0.03] p-10 text-center">
+      <div className="dd-hover-icon mb-4 text-4xl">
+        {icon}
+      </div>
 
       <h2 className="text-lg font-semibold">
         {title}
@@ -409,7 +397,7 @@ function EmptyState({ icon, title, text }) {
 
       <Link
         href="/assistant"
-        className="mt-6 inline-block rounded-xl bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+        className="dd-button dd-link mt-6 inline-block rounded-xl bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950"
       >
         Open AI Assistant
       </Link>

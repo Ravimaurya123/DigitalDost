@@ -7,22 +7,14 @@ export default function SettingsPage() {
   const [user, setUser] = useState(null);
 
   const [notifications, setNotifications] = useState(true);
-
-  const [emailNotifications, setEmailNotifications] =
-    useState(false);
-
+  const [emailNotifications, setEmailNotifications] = useState(false);
   const [aiAssistant, setAiAssistant] = useState(true);
-
   const [timeFormat, setTimeFormat] = useState("12");
-
   const [theme, setTheme] = useState("dark");
 
   const [loading, setLoading] = useState(true);
-
   const [saving, setSaving] = useState(false);
-
   const [saved, setSaved] = useState(false);
-
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -51,7 +43,7 @@ export default function SettingsPage() {
   }
 
   // =========================
-  // LOAD SETTINGS FROM MONGODB
+  // LOAD SETTINGS
   // =========================
 
   async function loadSettings() {
@@ -115,7 +107,6 @@ export default function SettingsPage() {
 
     const oldTheme = theme;
 
-    // Immediately update UI
     setTheme(newTheme);
     applyTheme(newTheme);
     setError("");
@@ -141,7 +132,6 @@ export default function SettingsPage() {
     } catch (error) {
       console.error("THEME SAVE ERROR:", error);
 
-      // Revert if database save fails
       setTheme(oldTheme);
       applyTheme(oldTheme);
 
@@ -200,7 +190,6 @@ export default function SettingsPage() {
   }
 
   const initials = getInitials(user?.name);
-
   const isLightMode = theme === "light";
 
   // =========================
@@ -211,7 +200,7 @@ export default function SettingsPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
         <div className="text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-700 border-t-cyan-400" />
+          <div className="dd-hover-icon mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-700 border-t-cyan-400" />
 
           <p className="mt-4 text-sm text-slate-400">
             Loading settings...
@@ -223,15 +212,10 @@ export default function SettingsPage() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-
-      {/* =========================
-          HEADER
-      ========================= */}
+      {/* HEADER */}
 
       <header className="border-b border-slate-800 bg-slate-950">
-
         <div className="mx-auto max-w-6xl px-6 py-6">
-
           <Link
             href="/dashboard"
             className="dd-link text-sm text-cyan-400"
@@ -246,41 +230,30 @@ export default function SettingsPage() {
           <p className="mt-2 text-sm text-slate-400">
             Customize your DigitalDost experience.
           </p>
-
         </div>
-
       </header>
 
-      {/* =========================
-          MAIN CONTENT
-      ========================= */}
+      {/* MAIN CONTENT */}
 
       <section className="mx-auto max-w-6xl px-6 py-8">
-
         {/* ERROR */}
 
         {error && (
-          <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
-            {error}
+          <div className="dd-card mb-6 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+            ⚠️ {error}
           </div>
         )}
 
         <div className="grid gap-6 md:grid-cols-2">
-
-          {/* =========================
-              PROFILE
-          ========================= */}
+          {/* PROFILE */}
 
           <div className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-6 md:col-span-2">
-
             <div className="flex items-center gap-5">
-
               <div className="dd-hover-icon flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-cyan-500 text-xl font-bold text-slate-950">
                 {initials}
               </div>
 
               <div>
-
                 <h2 className="text-xl font-bold text-white">
                   {user?.name || "Loading..."}
                 </h2>
@@ -292,23 +265,17 @@ export default function SettingsPage() {
                 <p className="mt-2 text-xs text-cyan-400">
                   DigitalDost Account
                 </p>
-
               </div>
-
             </div>
-
           </div>
 
-          {/* =========================
-              NOTIFICATIONS
-          ========================= */}
+          {/* NOTIFICATIONS */}
 
           <SettingCard
             icon="🔔"
             title="Notifications"
             description="Manage your reminder notifications."
           >
-
             <Toggle
               title="Reminder Notifications"
               description="Receive browser notifications for reminders."
@@ -324,19 +291,15 @@ export default function SettingsPage() {
               value={emailNotifications}
               setValue={setEmailNotifications}
             />
-
           </SettingCard>
 
-          {/* =========================
-              AI
-          ========================= */}
+          {/* AI */}
 
           <SettingCard
             icon="🤖"
             title="AI Assistant"
             description="Control DigitalDost AI features."
           >
-
             <Toggle
               title="AI Assistant"
               description="Enable AI-powered DigitalDost features."
@@ -345,38 +308,31 @@ export default function SettingsPage() {
             />
 
             <div className="dd-card mt-5 rounded-xl border border-cyan-500/10 bg-cyan-500/5 p-4">
-
               <p className="text-sm font-semibold text-cyan-400">
                 AI Command Center
               </p>
 
               <p className="mt-1 text-xs leading-5 text-slate-500">
-                Manage tasks, reminders and notes
-                using natural language.
+                Manage tasks, reminders and notes using natural
+                language.
               </p>
-
             </div>
-
           </SettingCard>
 
-          {/* =========================
-              TIME FORMAT
-          ========================= */}
+          {/* TIME FORMAT */}
 
           <SettingCard
             icon="🕐"
             title="Time Format"
             description="Choose your preferred time format."
           >
-
             <select
               value={timeFormat}
               onChange={(event) =>
                 setTimeFormat(event.target.value)
               }
-              className="dd-input w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
+              className="dd-input w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none"
             >
-
               <option value="12">
                 12 Hour — 10:30 PM
               </option>
@@ -384,27 +340,19 @@ export default function SettingsPage() {
               <option value="24">
                 24 Hour — 22:30
               </option>
-
             </select>
-
           </SettingCard>
 
-          {/* =========================
-              APPEARANCE
-          ========================= */}
+          {/* APPEARANCE */}
 
           <SettingCard
             icon={isLightMode ? "☀️" : "🌙"}
             title="Appearance"
             description="Choose between Light Mode and Dark Mode."
           >
-
             <div className="dd-card rounded-xl border border-slate-800 bg-slate-950 p-4">
-
               <div className="flex items-center justify-between gap-4">
-
                 <div>
-
                   <p className="text-sm font-semibold text-white">
                     {isLightMode
                       ? "Light Mode"
@@ -416,7 +364,6 @@ export default function SettingsPage() {
                       ? "Light theme is currently active."
                       : "Dark theme is currently active."}
                   </p>
-
                 </div>
 
                 {/* THEME SWITCH */}
@@ -431,7 +378,6 @@ export default function SettingsPage() {
                       : "bg-slate-700"
                   }`}
                 >
-
                   <span
                     className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-200 ${
                       isLightMode
@@ -439,13 +385,10 @@ export default function SettingsPage() {
                         : "left-1"
                     }`}
                   />
-
                 </button>
-
               </div>
 
-              <div className="mt-4 flex items-center justify-between rounded-lg border border-slate-800 px-3 py-2">
-
+              <div className="dd-card mt-4 flex items-center justify-between rounded-lg border border-slate-800 px-3 py-2">
                 <span className="text-xs text-slate-500">
                   Current Theme
                 </span>
@@ -453,29 +396,20 @@ export default function SettingsPage() {
                 <span className="text-xs font-semibold text-cyan-400">
                   {isLightMode ? "LIGHT" : "DARK"}
                 </span>
-
               </div>
-
             </div>
-
           </SettingCard>
 
-          {/* =========================
-              FEATURES
-          ========================= */}
+          {/* FEATURES */}
 
           <div className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-6 md:col-span-2">
-
             <div className="mb-6">
-
               <div className="flex items-center gap-3">
-
                 <div className="dd-hover-icon flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800">
                   ✨
                 </div>
 
                 <div>
-
                   <h2 className="font-semibold text-white">
                     DigitalDost Features
                   </h2>
@@ -483,15 +417,11 @@ export default function SettingsPage() {
                   <p className="text-xs text-slate-500">
                     Everything available in your workspace.
                   </p>
-
                 </div>
-
               </div>
-
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-
               <Feature
                 icon="🤖"
                 title="AI Assistant"
@@ -515,31 +445,24 @@ export default function SettingsPage() {
                 title="Documents"
                 text="Ask AI questions from PDFs."
               />
-
             </div>
-
           </div>
-
         </div>
 
-        {/* =========================
-            SAVE SETTINGS
-        ========================= */}
+        {/* SAVE SETTINGS */}
 
         <div className="dd-card mt-8 flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:flex-row sm:items-center sm:justify-between">
-
           <div>
-
             {saved ? (
               <p className="text-sm font-medium text-emerald-400">
                 ✓ Settings saved successfully.
               </p>
             ) : (
               <p className="text-sm text-slate-500">
-                Your preferences are permanently saved to your account.
+                Your preferences are permanently saved to your
+                account.
               </p>
             )}
-
           </div>
 
           <button
@@ -550,11 +473,8 @@ export default function SettingsPage() {
           >
             {saving ? "Saving..." : "Save Settings"}
           </button>
-
         </div>
-
       </section>
-
     </main>
   );
 }
@@ -571,15 +491,12 @@ function SettingCard({
 }) {
   return (
     <div className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-6">
-
       <div className="mb-6 flex items-start gap-4">
-
         <div className="dd-hover-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-xl">
           {icon}
         </div>
 
         <div>
-
           <h2 className="font-semibold text-white">
             {title}
           </h2>
@@ -587,13 +504,10 @@ function SettingCard({
           <p className="mt-1 text-xs leading-5 text-slate-500">
             {description}
           </p>
-
         </div>
-
       </div>
 
       {children}
-
     </div>
   );
 }
@@ -609,10 +523,8 @@ function Toggle({
   setValue,
 }) {
   return (
-    <div className="flex items-center justify-between gap-4">
-
+    <div className="dd-feature flex items-center justify-between gap-4 rounded-xl p-2">
       <div>
-
         <p className="text-sm font-medium text-white">
           {title}
         </p>
@@ -620,7 +532,6 @@ function Toggle({
         <p className="mt-1 text-xs leading-5 text-slate-500">
           {description}
         </p>
-
       </div>
 
       <button
@@ -631,15 +542,12 @@ function Toggle({
           value ? "bg-cyan-500" : "bg-slate-700"
         }`}
       >
-
         <span
           className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-all duration-200 ${
             value ? "left-6" : "left-1"
           }`}
         />
-
       </button>
-
     </div>
   );
 }
@@ -655,7 +563,6 @@ function Feature({
 }) {
   return (
     <div className="dd-feature rounded-xl border border-slate-800 bg-slate-950 p-4">
-
       <div className="dd-hover-icon text-2xl">
         {icon}
       </div>
@@ -667,7 +574,6 @@ function Feature({
       <p className="mt-1 text-xs leading-5 text-slate-500">
         {text}
       </p>
-
     </div>
   );
 }
@@ -687,17 +593,11 @@ function getInitials(name) {
     .filter(Boolean);
 
   if (words.length === 1) {
-    return words[0]
-      .charAt(0)
-      .toUpperCase();
+    return words[0].charAt(0).toUpperCase();
   }
 
   return (
-    words[0]
-      .charAt(0)
-      .toUpperCase() +
-    words[words.length - 1]
-      .charAt(0)
-      .toUpperCase()
+    words[0].charAt(0).toUpperCase() +
+    words[words.length - 1].charAt(0).toUpperCase()
   );
 }

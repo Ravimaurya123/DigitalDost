@@ -48,7 +48,10 @@ export default function LoginPage() {
       router.push("/dashboard");
       router.refresh();
     } catch (error) {
-      console.error("LOGIN FRONTEND ERROR:", error);
+      console.error(
+        "LOGIN FRONTEND ERROR:",
+        error
+      );
 
       setError(
         "Something went wrong. Please try again."
@@ -63,17 +66,23 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md">
 
+        {/* HEADER */}
+
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-cyan-400">
+
+          <h1 className="dd-link inline-block text-3xl font-bold text-cyan-400">
             DigitalDost
           </h1>
 
           <p className="mt-2 text-slate-400">
             Welcome back 👋
           </p>
+
         </div>
 
-        <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
+        {/* LOGIN CARD */}
+
+        <div className="dd-card rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
 
           <h2 className="text-2xl font-bold">
             Login
@@ -83,18 +92,25 @@ export default function LoginPage() {
             Login to continue to your DigitalDost account.
           </p>
 
+          {/* ERROR */}
+
           {error && (
-            <div className="mt-5 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+            <div className="dd-card mt-5 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
               {error}
             </div>
           )}
+
+          {/* FORM */}
 
           <form
             onSubmit={handleLogin}
             className="mt-6 space-y-5"
           >
 
+            {/* EMAIL */}
+
             <div>
+
               <label className="mb-2 block text-sm font-medium text-slate-300">
                 Email
               </label>
@@ -107,11 +123,15 @@ export default function LoginPage() {
                 }
                 placeholder="Enter your email"
                 required
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+                className="dd-input w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-600"
               />
+
             </div>
 
+            {/* PASSWORD */}
+
             <div>
+
               <label className="mb-2 block text-sm font-medium text-slate-300">
                 Password
               </label>
@@ -124,14 +144,17 @@ export default function LoginPage() {
                 }
                 placeholder="Enter your password"
                 required
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+                className="dd-input w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-600"
               />
+
             </div>
+
+            {/* LOGIN BUTTON */}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-cyan-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
+              className="dd-button w-full rounded-xl bg-cyan-500 px-5 py-3 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading
                 ? "Logging in..."
@@ -140,14 +163,19 @@ export default function LoginPage() {
 
           </form>
 
+          {/* REGISTER */}
+
           <p className="mt-6 text-center text-sm text-slate-400">
+
             Don't have an account?{" "}
+
             <Link
               href="/register"
-              className="font-semibold text-cyan-400 hover:text-cyan-300"
+              className="dd-link font-semibold text-cyan-400"
             >
               Register
             </Link>
+
           </p>
 
         </div>

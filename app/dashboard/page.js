@@ -228,7 +228,6 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-
       {/* ======================================
           REMINDER NOTIFICATION
       ====================================== */}
@@ -240,32 +239,29 @@ export default async function DashboardPage() {
       ====================================== */}
 
       <nav className="border-b border-slate-800 bg-slate-950">
-
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6">
-
           <div className="flex items-center justify-between gap-4">
 
-            {/* Logo */}
+            {/* LOGO */}
 
             <a
               href="/dashboard"
-              className="dd-link text-xl font-bold text-cyan-400 transition hover:text-cyan-300 sm:text-2xl"
+              className="dd-link text-xl font-bold text-cyan-400 sm:text-2xl"
             >
               DigitalDost
             </a>
 
-            {/* Right Side */}
+            {/* RIGHT SIDE */}
 
             <div className="flex items-center gap-3 sm:gap-4">
 
-              {/* Theme Toggle */}
+              {/* THEME */}
 
               <ThemeToggle />
 
-              {/* User */}
+              {/* USER */}
 
               <div className="hidden text-right sm:block">
-
                 <p className="text-sm font-medium text-white">
                   {user.name}
                 </p>
@@ -273,23 +269,18 @@ export default async function DashboardPage() {
                 <p className="text-xs text-slate-400">
                   {user.email}
                 </p>
-
               </div>
 
-              {/* Avatar */}
+              {/* AVATAR */}
 
               <div className="dd-hover-icon flex h-9 w-9 items-center justify-center rounded-full bg-cyan-500 font-bold text-slate-950 sm:h-10 sm:w-10">
                 {user.name
                   ?.charAt(0)
                   ?.toUpperCase()}
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       </nav>
 
       {/* ======================================
@@ -297,29 +288,20 @@ export default async function DashboardPage() {
       ====================================== */}
 
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
-
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
 
-          {/* ======================================
-              SIDEBAR
-          ====================================== */}
+          {/* SIDEBAR */}
 
           <DashboardSidebar />
 
-          {/* ======================================
-              DASHBOARD CONTENT
-          ====================================== */}
+          {/* DASHBOARD CONTENT */}
 
           <section className="min-w-0 flex-1">
 
-            {/* ======================================
-                GREETING
-            ====================================== */}
+            {/* GREETING */}
 
             <div className="mb-6 sm:mb-8">
-
               <Greeting />
-
             </div>
 
             {/* ======================================
@@ -331,11 +313,9 @@ export default async function DashboardPage() {
               {/* TOTAL TASKS */}
 
               <div className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-5">
-
                 <div className="flex items-center justify-between">
 
                   <div>
-
                     <p className="text-xs text-slate-400 sm:text-sm">
                       Total Tasks
                     </p>
@@ -343,29 +323,24 @@ export default async function DashboardPage() {
                     <p className="mt-2 text-2xl font-bold text-white sm:text-3xl">
                       {totalTasks}
                     </p>
-
                   </div>
 
                   <div className="dd-hover-icon text-2xl">
                     📋
                   </div>
-
                 </div>
 
                 <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                   All tasks
                 </p>
-
               </div>
 
               {/* COMPLETED */}
 
               <div className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-5">
-
                 <div className="flex items-center justify-between">
 
                   <div>
-
                     <p className="text-xs text-slate-400 sm:text-sm">
                       Completed
                     </p>
@@ -373,29 +348,24 @@ export default async function DashboardPage() {
                     <p className="mt-2 text-2xl font-bold text-green-400 sm:text-3xl">
                       {completedTasks}
                     </p>
-
                   </div>
 
                   <div className="dd-hover-icon text-2xl">
                     ✅
                   </div>
-
                 </div>
 
                 <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                   Completed tasks
                 </p>
-
               </div>
 
               {/* PENDING */}
 
               <div className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-5">
-
                 <div className="flex items-center justify-between">
 
                   <div>
-
                     <p className="text-xs text-slate-400 sm:text-sm">
                       Pending
                     </p>
@@ -403,29 +373,24 @@ export default async function DashboardPage() {
                     <p className="mt-2 text-2xl font-bold text-yellow-400 sm:text-3xl">
                       {pendingTasks}
                     </p>
-
                   </div>
 
                   <div className="dd-hover-icon text-2xl">
                     ⏳
                   </div>
-
                 </div>
 
                 <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                   Tasks remaining
                 </p>
-
               </div>
 
               {/* REMINDERS */}
 
               <div className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-5">
-
                 <div className="flex items-center justify-between">
 
                   <div>
-
                     <p className="text-xs text-slate-400 sm:text-sm">
                       Reminders
                     </p>
@@ -433,21 +398,17 @@ export default async function DashboardPage() {
                     <p className="mt-2 text-2xl font-bold text-cyan-400 sm:text-3xl">
                       {pendingReminders.length}
                     </p>
-
                   </div>
 
                   <div className="dd-hover-icon text-2xl">
                     🔔
                   </div>
-
                 </div>
 
                 <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                   Pending reminders
                 </p>
-
               </div>
-
             </div>
 
             {/* ======================================
@@ -459,11 +420,9 @@ export default async function DashboardPage() {
               {/* TODAY */}
 
               <div className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-5">
-
                 <div className="flex items-center justify-between">
 
                   <div>
-
                     <p className="text-sm text-slate-400">
                       Today
                     </p>
@@ -471,29 +430,24 @@ export default async function DashboardPage() {
                     <p className="mt-2 text-2xl font-bold text-cyan-400">
                       {todayReminders.length}
                     </p>
-
                   </div>
 
                   <div className="dd-hover-icon text-3xl">
                     📅
                   </div>
-
                 </div>
 
                 <p className="mt-2 text-sm text-slate-500">
                   Today's reminders
                 </p>
-
               </div>
 
               {/* UPCOMING */}
 
               <div className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-5">
-
                 <div className="flex items-center justify-between">
 
                   <div>
-
                     <p className="text-sm text-slate-400">
                       Upcoming
                     </p>
@@ -501,29 +455,24 @@ export default async function DashboardPage() {
                     <p className="mt-2 text-2xl font-bold text-green-400">
                       {upcomingReminders.length}
                     </p>
-
                   </div>
 
                   <div className="dd-hover-icon text-3xl">
                     ⏰
                   </div>
-
                 </div>
 
                 <p className="mt-2 text-sm text-slate-500">
                   Future reminders
                 </p>
-
               </div>
 
               {/* OVERDUE */}
 
               <div className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-5">
-
                 <div className="flex items-center justify-between">
 
                   <div>
-
                     <p className="text-sm text-slate-400">
                       Overdue
                     </p>
@@ -531,21 +480,17 @@ export default async function DashboardPage() {
                     <p className="mt-2 text-2xl font-bold text-red-400">
                       {overdueReminders.length}
                     </p>
-
                   </div>
 
                   <div className="dd-hover-icon text-3xl">
                     ⚠️
                   </div>
-
                 </div>
 
                 <p className="mt-2 text-sm text-slate-500">
                   Missed reminders
                 </p>
-
               </div>
-
             </div>
 
             {/* ======================================
@@ -560,16 +505,13 @@ export default async function DashboardPage() {
 
             <div className="mb-6 mt-6 grid grid-cols-1 gap-5 sm:mb-8 lg:grid-cols-2 lg:gap-6">
 
-              {/* ==================================
-                  TODAY TASKS
-              ================================== */}
+              {/* TODAY TASKS */}
 
               <div className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:p-6">
 
                 <div className="mb-5 flex items-start justify-between gap-4">
 
                   <div>
-
                     <h2 className="text-lg font-semibold sm:text-xl">
                       Today's Tasks
                     </h2>
@@ -577,20 +519,17 @@ export default async function DashboardPage() {
                     <p className="mt-1 text-sm text-slate-400">
                       Tasks scheduled for today
                     </p>
-
                   </div>
 
                   <a
                     href="/tasks"
-                    className="dd-link whitespace-nowrap text-sm text-cyan-400 hover:text-cyan-300"
+                    className="dd-link whitespace-nowrap text-sm text-cyan-400"
                   >
                     View All →
                   </a>
-
                 </div>
 
                 {todayTasks.length === 0 ? (
-
                   <div className="py-8 text-center">
 
                     <div className="dd-hover-icon mb-3 text-3xl">
@@ -603,30 +542,24 @@ export default async function DashboardPage() {
 
                     <a
                       href="/tasks"
-                      className="dd-button mt-4 inline-block rounded-lg bg-cyan-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-400"
+                      className="dd-button mt-4 inline-block rounded-lg bg-cyan-500 px-4 py-2 text-sm font-medium text-slate-950"
                     >
                       + Create Task
                     </a>
-
                   </div>
-
                 ) : (
-
                   <div className="space-y-3">
 
                     {todayTasks
                       .slice(0, 5)
                       .map((task) => (
-
                         <div
                           key={task._id.toString()}
                           className="dd-card rounded-xl border border-slate-700 bg-slate-800/60 p-4"
                         >
-
                           <div className="flex items-start justify-between gap-3">
 
                             <div className="min-w-0">
-
                               <h3
                                 className={`break-words font-semibold ${
                                   task.completed
@@ -642,7 +575,6 @@ export default async function DashboardPage() {
                                   {task.description}
                                 </p>
                               )}
-
                             </div>
 
                             <span
@@ -656,29 +588,20 @@ export default async function DashboardPage() {
                                 ? "Completed"
                                 : "Pending"}
                             </span>
-
                           </div>
-
                         </div>
-
                       ))}
-
                   </div>
-
                 )}
-
               </div>
 
-              {/* ==================================
-                  SMART REMINDERS
-              ================================== */}
+              {/* SMART REMINDERS */}
 
               <div className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:p-6">
 
                 <div className="mb-5 flex items-start justify-between gap-4">
 
                   <div>
-
                     <h2 className="text-lg font-semibold sm:text-xl">
                       Smart Reminders 🔔
                     </h2>
@@ -686,20 +609,17 @@ export default async function DashboardPage() {
                     <p className="mt-1 text-sm text-slate-400">
                       Today and upcoming reminders
                     </p>
-
                   </div>
 
                   <a
                     href="/reminders"
-                    className="dd-link whitespace-nowrap text-sm text-cyan-400 hover:text-cyan-300"
+                    className="dd-link whitespace-nowrap text-sm text-cyan-400"
                   >
                     View All →
                   </a>
-
                 </div>
 
                 {dashboardReminders.length === 0 ? (
-
                   <div className="py-8 text-center">
 
                     <div className="dd-hover-icon mb-3 text-3xl">
@@ -712,20 +632,16 @@ export default async function DashboardPage() {
 
                     <a
                       href="/reminders"
-                      className="dd-button mt-4 inline-block rounded-lg bg-cyan-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-400"
+                      className="dd-button mt-4 inline-block rounded-lg bg-cyan-500 px-4 py-2 text-sm font-medium text-slate-950"
                     >
                       + Create Reminder
                     </a>
-
                   </div>
-
                 ) : (
-
                   <div className="space-y-3">
 
                     {dashboardReminders.map(
                       (reminder) => {
-
                         const status =
                           getReminderStatus(
                             reminder
@@ -742,7 +658,6 @@ export default async function DashboardPage() {
                                 : "border-slate-700 bg-slate-800/60"
                             }`}
                           >
-
                             <div className="flex items-start justify-between gap-3">
 
                               <div className="min-w-0 flex-1">
@@ -763,7 +678,6 @@ export default async function DashboardPage() {
                                     reminder.reminderDate
                                   )}
                                 </p>
-
                               </div>
 
                               <span
@@ -777,20 +691,14 @@ export default async function DashboardPage() {
                               >
                                 {status}
                               </span>
-
                             </div>
-
                           </div>
                         );
                       }
                     )}
-
                   </div>
-
                 )}
-
               </div>
-
             </div>
 
             {/* ======================================
@@ -798,7 +706,6 @@ export default async function DashboardPage() {
             ====================================== */}
 
             <div>
-
               <h2 className="mb-4 text-xl font-semibold">
                 Quick Actions
               </h2>
@@ -809,9 +716,8 @@ export default async function DashboardPage() {
 
                 <a
                   href="/assistant"
-                  className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-cyan-500/50 hover:bg-slate-900/80"
+                  className="dd-card dd-link rounded-2xl border border-slate-800 bg-slate-900 p-5"
                 >
-
                   <div className="dd-hover-icon mb-3 text-2xl">
                     🤖
                   </div>
@@ -823,16 +729,14 @@ export default async function DashboardPage() {
                   <p className="mt-1 text-sm text-slate-400">
                     Talk with DigitalDost AI
                   </p>
-
                 </a>
 
                 {/* TASK */}
 
                 <a
                   href="/tasks"
-                  className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-cyan-500/50 hover:bg-slate-900/80"
+                  className="dd-card dd-link rounded-2xl border border-slate-800 bg-slate-900 p-5"
                 >
-
                   <div className="dd-hover-icon mb-3 text-2xl">
                     ✅
                   </div>
@@ -844,16 +748,14 @@ export default async function DashboardPage() {
                   <p className="mt-1 text-sm text-slate-400">
                     Create a new task
                   </p>
-
                 </a>
 
                 {/* REMINDER */}
 
                 <a
                   href="/reminders"
-                  className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-cyan-500/50 hover:bg-slate-900/80"
+                  className="dd-card dd-link rounded-2xl border border-slate-800 bg-slate-900 p-5"
                 >
-
                   <div className="dd-hover-icon mb-3 text-2xl">
                     🔔
                   </div>
@@ -865,16 +767,14 @@ export default async function DashboardPage() {
                   <p className="mt-1 text-sm text-slate-400">
                     Set a smart reminder
                   </p>
-
                 </a>
 
                 {/* NOTE */}
 
                 <a
                   href="/notes"
-                  className="dd-card rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-cyan-500/50 hover:bg-slate-900/80"
+                  className="dd-card dd-link rounded-2xl border border-slate-800 bg-slate-900 p-5"
                 >
-
                   <div className="dd-hover-icon mb-3 text-2xl">
                     📝
                   </div>
@@ -886,11 +786,9 @@ export default async function DashboardPage() {
                   <p className="mt-1 text-sm text-slate-400">
                     Write a quick note
                   </p>
-
                 </a>
 
               </div>
-
             </div>
 
             {/* ======================================
@@ -907,11 +805,8 @@ export default async function DashboardPage() {
             </div>
 
           </section>
-
         </div>
-
       </div>
-
     </main>
   );
 }
