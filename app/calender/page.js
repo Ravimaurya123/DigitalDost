@@ -14,11 +14,10 @@ export default function CalendarPage() {
       try {
         setLoading(true);
 
-        const [tasksResponse, remindersResponse] =
-          await Promise.all([
-            fetch("/api/tasks", { cache: "no-store" }),
-            fetch("/api/reminders", { cache: "no-store" }),
-          ]);
+        const [tasksResponse, remindersResponse] = await Promise.all([
+          fetch("/api/tasks", { cache: "no-store" }),
+          fetch("/api/reminders", { cache: "no-store" }),
+        ]);
 
         const tasksData = await tasksResponse.json();
         const remindersData = await remindersResponse.json();
@@ -48,7 +47,6 @@ export default function CalendarPage() {
   });
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-
   const firstDay = new Date(year, month, 1).getDay();
 
   const calendarDays = useMemo(() => {
@@ -66,33 +64,25 @@ export default function CalendarPage() {
   }, [firstDay, daysInMonth]);
 
   function previousMonth() {
-    setCurrentDate(
-      new Date(year, month - 1, 1)
-    );
+    setCurrentDate(new Date(year, month - 1, 1));
   }
 
   function nextMonth() {
-    setCurrentDate(
-      new Date(year, month + 1, 1)
-    );
+    setCurrentDate(new Date(year, month + 1, 1));
   }
 
-  function today() {
+  function goToday() {
     setCurrentDate(new Date());
   }
 
   function getDateKey(day) {
-    return `${year}-${String(month + 1).padStart(
-      2,
-      "0"
-    )}-${String(day).padStart(2, "0")}`;
+    return `${year}-${String(month + 1).padStart(2, "0")}-${String(
+      day
+    ).padStart(2, "0")}`;
   }
 
   function getTaskDate(task) {
-    const value =
-      task.dueDate ||
-      task.date ||
-      task.createdAt;
+    const value = task.dueDate || task.date || task.createdAt;
 
     if (!value) return null;
 
@@ -102,27 +92,28 @@ export default function CalendarPage() {
       return null;
     }
 
-    return `${date.getFullYear()}-${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-${String(
-      date.getDate()
-    ).padStart(2, "0")}`;
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")}`;
   }
 
   function getReminderDate(reminder) {
-    if (!reminder.date) return null;
+    const value =
+      reminder.reminderDate || reminder.date || reminder.createdAt;
 
-    const date = new Date(reminder.date);
+    if (!value) return null;
+
+    const date = new Date(value);
 
     if (Number.isNaN(date.getTime())) {
       return null;
     }
 
-    return `${date.getFullYear()}-${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-${String(
-      date.getDate()
-    ).padStart(2, "0")}`;
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")}`;
   }
 
   function getItemsForDay(day) {
@@ -136,12 +127,9 @@ export default function CalendarPage() {
     const key = getDateKey(day);
 
     return {
-      tasks: tasks.filter(
-        (task) => getTaskDate(task) === key
-      ),
+      tasks: tasks.filter((task) => getTaskDate(task) === key),
       reminders: reminders.filter(
-        (reminder) =>
-          getReminderDate(reminder) === key
+        (reminder) => getReminderDate(reminder) === key
       ),
     };
   }
@@ -166,18 +154,15 @@ export default function CalendarPage() {
         <div className="mb-8">
           <Link
             href="/dashboard"
-            className="dd-link text-sm text-slate-400 hover:text-cyan-400"
+            className="text-sm text-slate-400 transition hover:text-cyan-400"
           >
             ← Back to Dashboard
           </Link>
 
           <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h1 className="dd-word-heading text-3xl font-bold sm:text-4xl">
-                <span className="dd-word">
-                  Calendar
-                </span>{" "}
-                <span className="dd-word">📅</span>
+              <h1 className="text-3xl font-bold sm:text-4xl">
+                Calendar 📅
               </h1>
 
               <p className="mt-2 text-sm text-slate-500">
@@ -187,8 +172,8 @@ export default function CalendarPage() {
 
             <button
               type="button"
-              onClick={today}
-              className="dd-button rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-300 hover:text-white"
+              onClick={goToday}
+              className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-300 transition hover:border-cyan-500 hover:text-cyan-400"
             >
               Today
             </button>
@@ -197,14 +182,14 @@ export default function CalendarPage() {
 
         {/* Calendar */}
 
-        <section className="dd-card overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-md">
+        <section className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-md">
           {/* Calendar Header */}
 
           <div className="flex items-center justify-between border-b border-slate-800 p-4 sm:p-5">
             <button
               type="button"
               onClick={previousMonth}
-              className="dd-button rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-slate-300 hover:text-cyan-400"
+              className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-slate-300 transition hover:border-cyan-500 hover:text-cyan-400"
             >
               ←
             </button>
@@ -216,7 +201,7 @@ export default function CalendarPage() {
             <button
               type="button"
               onClick={nextMonth}
-              className="dd-button rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-slate-300 hover:text-cyan-400"
+              className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-slate-300 transition hover:border-cyan-500 hover:text-cyan-400"
             >
               →
             </button>
@@ -243,32 +228,26 @@ export default function CalendarPage() {
             ))}
           </div>
 
-          {/* Days */}
+          {/* Calendar Days */}
 
           {loading ? (
             <div className="grid grid-cols-7">
-              {Array.from({ length: 35 }).map(
-                (_, index) => (
-                  <div
-                    key={index}
-                    className="min-h-[100px] border-b border-r border-slate-800 p-2"
-                  >
-                    <div className="h-5 w-5 animate-pulse rounded bg-slate-800" />
-                  </div>
-                )
-              )}
+              {Array.from({ length: 35 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="min-h-[100px] border-b border-r border-slate-800 p-2 sm:min-h-[135px]"
+                >
+                  <div className="h-5 w-5 animate-pulse rounded bg-slate-800" />
+                </div>
+              ))}
             </div>
           ) : (
             <div className="grid grid-cols-7">
               {calendarDays.map((day, index) => {
-                const items =
-                  getItemsForDay(day);
+                const items = getItemsForDay(day);
 
-                const hasTasks =
-                  items.tasks.length > 0;
-
-                const hasReminders =
-                  items.reminders.length > 0;
+                const hasTasks = items.tasks.length > 0;
+                const hasReminders = items.reminders.length > 0;
 
                 return (
                   <div
@@ -281,6 +260,8 @@ export default function CalendarPage() {
                   >
                     {day && (
                       <>
+                        {/* Date */}
+
                         <div
                           className={`mb-2 flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
                             isToday(day)
@@ -294,35 +275,31 @@ export default function CalendarPage() {
                         <div className="space-y-1">
                           {/* Tasks */}
 
-                          {items.tasks
-                            .slice(0, 3)
-                            .map((task) => (
-                              <div
-                                key={`task-${task._id}`}
-                                className="truncate rounded-md border border-cyan-500/20 bg-cyan-500/10 px-1.5 py-1 text-[9px] text-cyan-400 sm:text-[10px]"
-                                title={task.title}
-                              >
-                                ✅ {task.title}
-                              </div>
-                            ))}
+                          {items.tasks.slice(0, 3).map((task) => (
+                            <div
+                              key={`task-${task._id}`}
+                              className="truncate rounded-md border border-cyan-500/20 bg-cyan-500/10 px-1.5 py-1 text-[9px] text-cyan-400 sm:text-[10px]"
+                              title={task.title}
+                            >
+                              ✅ {task.title}
+                            </div>
+                          ))}
 
                           {/* Reminders */}
 
-                          {items.reminders
-                            .slice(0, 3)
-                            .map((reminder) => (
-                              <div
-                                key={`reminder-${reminder._id}`}
-                                className="truncate rounded-md border border-amber-500/20 bg-amber-500/10 px-1.5 py-1 text-[9px] text-amber-400 sm:text-[10px]"
-                                title={reminder.title}
-                              >
-                                🔔 {reminder.title}
-                              </div>
-                            ))}
+                          {items.reminders.slice(0, 3).map((reminder) => (
+                            <div
+                              key={`reminder-${reminder._id}`}
+                              className="truncate rounded-md border border-amber-500/20 bg-amber-500/10 px-1.5 py-1 text-[9px] text-amber-400 sm:text-[10px]"
+                              title={reminder.title}
+                            >
+                              🔔 {reminder.title}
+                            </div>
+                          ))}
 
-                          {(items.tasks.length +
-                            items.reminders.length >
-                            6) && (
+                          {/* More Items */}
+
+                          {items.tasks.length + items.reminders.length > 6 && (
                             <p className="text-[9px] text-slate-600">
                               +
                               {items.tasks.length +
@@ -332,12 +309,13 @@ export default function CalendarPage() {
                             </p>
                           )}
 
-                          {!hasTasks &&
-                            !hasReminders && (
-                              <div className="hidden text-[9px] text-slate-700 sm:block">
-                                —
-                              </div>
-                            )}
+                          {/* Empty Day */}
+
+                          {!hasTasks && !hasReminders && (
+                            <div className="hidden text-[9px] text-slate-700 sm:block">
+                              —
+                            </div>
+                          )}
                         </div>
                       </>
                     )}
