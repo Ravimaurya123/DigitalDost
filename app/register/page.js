@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -9,6 +10,9 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
   });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,7 +30,7 @@ export default function RegisterPage() {
     setMessage("");
 
     if (form.password !== form.confirmPassword) {
-      setMessage("Passwords do not match");
+      setMessage("Passwords do not match.");
       return;
     }
 
@@ -39,16 +43,16 @@ export default function RegisterPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: form.name,
-          email: form.email,
+          name: form.name.trim(),
+          email: form.email.trim().toLowerCase(),
           password: form.password,
         }),
       });
 
       const data = await response.json();
 
-      if (!response.ok) {
-        setMessage(data.message);
+      if (!response.ok || !data.success) {
+        setMessage(data.message || "Registration failed.");
         return;
       }
 
@@ -62,7 +66,8 @@ export default function RegisterPage() {
       });
     } catch (error) {
       console.error("REGISTER ERROR:", error);
-      setMessage("Something went wrong");
+
+      setMessage("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -70,13 +75,10 @@ export default function RegisterPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-white">
-
       <div className="w-full max-w-md">
 
         {/* HEADER */}
-
         <div className="mb-8 text-center">
-
           <h1 className="dd-link inline-block text-3xl font-bold text-cyan-400">
             DigitalDost
           </h1>
@@ -84,11 +86,9 @@ export default function RegisterPage() {
           <p className="mt-2 text-slate-400">
             Create your account
           </p>
-
         </div>
 
         {/* REGISTER CARD */}
-
         <div className="dd-card rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
 
           <h2 className="text-2xl font-bold">
@@ -105,9 +105,7 @@ export default function RegisterPage() {
           >
 
             {/* FULL NAME */}
-
             <div>
-
               <label className="mb-2 block text-sm font-medium text-slate-300">
                 Full Name
               </label>
@@ -118,16 +116,14 @@ export default function RegisterPage() {
                 value={form.name}
                 onChange={handleChange}
                 placeholder="Enter your name"
+                autoComplete="name"
                 required
                 className="dd-input w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-600"
               />
-
             </div>
 
             {/* EMAIL */}
-
             <div>
-
               <label className="mb-2 block text-sm font-medium text-slate-300">
                 Email
               </label>
@@ -138,55 +134,88 @@ export default function RegisterPage() {
                 value={form.email}
                 onChange={handleChange}
                 placeholder="Enter your email"
+                autoComplete="email"
                 required
                 className="dd-input w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-600"
               />
-
             </div>
 
             {/* PASSWORD */}
-
             <div>
-
               <label className="mb-2 block text-sm font-medium text-slate-300">
                 Password
               </label>
 
-              <input
-                type="password"
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                placeholder="Create a password"
-                required
-                minLength={6}
-                className="dd-input w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-600"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder="Create a password"
+                  autoComplete="new-password"
+                  required
+                  minLength={6}
+                  className="dd-input w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 pr-14 text-white outline-none placeholder:text-slate-600"
+                />
 
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-lg text-slate-400 transition hover:text-cyan-400"
+                  aria-label={
+                    showPassword
+                      ? "Hide password"
+                      : "Show password"
+                  }
+                >
+                  {showPassword ? "🙈" : "👁️"}
+                </button>
+              </div>
             </div>
 
             {/* CONFIRM PASSWORD */}
-
             <div>
-
               <label className="mb-2 block text-sm font-medium text-slate-300">
                 Confirm Password
               </label>
 
-              <input
-                type="password"
-                name="confirmPassword"
-                value={form.confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirm your password"
-                required
-                className="dd-input w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-600"
-              />
+              <div className="relative">
+                <input
+                  type={
+                    showConfirmPassword
+                      ? "text"
+                      : "password"
+                  }
+                  name="confirmPassword"
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Confirm your password"
+                  autoComplete="new-password"
+                  required
+                  className="dd-input w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 pr-14 text-white outline-none placeholder:text-slate-600"
+                />
 
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowConfirmPassword(
+                      !showConfirmPassword
+                    )
+                  }
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-lg text-slate-400 transition hover:text-cyan-400"
+                  aria-label={
+                    showConfirmPassword
+                      ? "Hide password"
+                      : "Show password"
+                  }
+                >
+                  {showConfirmPassword ? "🙈" : "👁️"}
+                </button>
+              </div>
             </div>
 
             {/* MESSAGE */}
-
             {message && (
               <div className="dd-card rounded-xl border border-cyan-500/20 bg-cyan-500/10 p-3 text-center text-sm text-cyan-400">
                 {message}
@@ -194,7 +223,6 @@ export default function RegisterPage() {
             )}
 
             {/* CREATE ACCOUNT BUTTON */}
-
             <button
               type="submit"
               disabled={loading}
@@ -208,24 +236,19 @@ export default function RegisterPage() {
           </form>
 
           {/* LOGIN LINK */}
-
           <p className="mt-6 text-center text-sm text-slate-400">
-
             Already have an account?{" "}
 
-            <a
+            <Link
               href="/login"
               className="dd-link font-semibold text-cyan-400"
             >
               Login
-            </a>
-
+            </Link>
           </p>
 
         </div>
-
       </div>
-
     </main>
   );
 }

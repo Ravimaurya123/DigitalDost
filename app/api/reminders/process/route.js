@@ -1,5 +1,7 @@
+import { User } from "@/models/User";
 import connectDB from "@/lib/mongodb";
 import Reminder from "@/models/Reminder";
+import { sendReminderEmail } from "@/lib/email";
 
 export async function GET(request) {
   try {
@@ -50,18 +52,43 @@ export async function GET(request) {
     const processedReminders = [];
 
     for (const reminder of dueReminders) {
+      let emailSent = false;
+
+      if (reminder.emailNotification && !reminder.emailSent) {
+        try {
+          const user = await User.findById(reminder.userId).select(
+            "email"
+          );
+
+          if (user?.email) {
+            await sendReminderEmail({
+              to: user.email,
+              title: reminder.title,
+              description: reminder.description,
+              reminderDate: reminder.reminderDate,
+            });
+
+            reminder.emailSent = true;
+            emailSent = true;
+          }
+        } catch (emailError) {
+          console.error(
+            "REMINDER EMAIL FAILED:",
+            emailError
+          );
+        }
+      }
+
       reminder.notified = true;
 
       await reminder.save();
 
       processedReminders.push({
         id: reminder._id,
-        userId: reminder.userId,
         title: reminder.title,
         description: reminder.description,
         reminderDate: reminder.reminderDate,
-        emailNotification: reminder.emailNotification,
-        emailSent: reminder.emailSent,
+        emailSent,
       });
     }
 
