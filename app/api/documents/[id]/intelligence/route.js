@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import Document from "@/models/Document";
+import Notification from "@/models/Notification";
 import { askAI } from "@/lib/ai";
 import { isValidObjectId } from "@/lib/validation";
 
@@ -45,9 +46,7 @@ export async function POST(request, { params }) {
 
     const body = await request.json();
 
-    const action = body?.action
-      ?.trim()
-      ?.toLowerCase();
+    const action = body?.action?.trim()?.toLowerCase();
 
     const allowedActions = [
       "summarize",
@@ -95,18 +94,14 @@ export async function POST(request, { params }) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "No readable text was found in this PDF.",
+          message: "No readable text was found in this PDF.",
         },
         { status: 400 }
       );
     }
 
     // Limit text sent to Gemini
-    const documentText = document.text.slice(
-      0,
-      50000
-    );
+    const documentText = document.text.slice(0, 50000);
 
     // ==========================================
     // PROMPT
@@ -271,6 +266,66 @@ ${documentText}
     }
 
     // ==========================================
+    // DOCUMENT NAME
+    // ==========================================
+
+    const documentName =
+      document.name ||
+      document.fileName ||
+      "your document";
+
+    // ==========================================
+    // NOTIFICATION HELPER
+    // ==========================================
+
+    async function createDocumentNotification() {
+      try {
+        const notificationData = {
+          summarize: {
+            title: "Document Summary Ready 📄",
+            message: `AI has generated a summary for "${documentName}".`,
+          },
+
+          keypoints: {
+            title: "Document Key Points Ready 💡",
+            message: `AI has extracted the key points from "${documentName}".`,
+          },
+
+          mcqs: {
+            title: "Document MCQs Ready ❓",
+            message: `AI has generated MCQs from "${documentName}".`,
+          },
+
+          notes: {
+            title: "Document Notes Ready 📝",
+            message: `AI has generated study notes from "${documentName}".`,
+          },
+        };
+
+        const notification = notificationData[action];
+
+        if (!notification) {
+          return;
+        }
+
+        await Notification.create({
+          userId: user.userId,
+          title: notification.title,
+          message: notification.message,
+          type: "document",
+          link: `/documents`,
+        });
+      } catch (error) {
+        // Notification failure should NOT break
+        // the document AI response.
+        console.error(
+          "DOCUMENT NOTIFICATION ERROR:",
+          error
+        );
+      }
+    }
+
+    // ==========================================
     // MCQ JSON
     // ==========================================
 
@@ -291,6 +346,10 @@ ${documentText}
             "Invalid MCQ response format."
           );
         }
+
+        // Create notification after successful
+        // MCQ generation.
+        await createDocumentNotification();
 
         return NextResponse.json({
           success: true,
@@ -313,6 +372,12 @@ ${documentText}
         );
       }
     }
+
+    // ==========================================
+    // DOCUMENT NOTIFICATION
+    // ==========================================
+
+    await createDocumentNotification();
 
     // ==========================================
     // NORMAL RESPONSE

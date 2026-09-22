@@ -12,9 +12,11 @@ import AICommandCenter from "@/components/AICommandCenter";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import Greeting from "@/components/Greeting";
 import ThemeToggle from "@/components/ThemeToggle";
+import NotificationBell from "@/components/NotificationBell";
 import GlobalSearch from "@/components/GlobalSearch";
 import ProductivityAnalytics from "@/components/ProductivityAnalytics";
 import AIDailyPlanner from "@/components/AIDailyPlanner";
+
 export default async function DashboardPage() {
   // ==========================================
   // CHECK LOGIN
@@ -261,6 +263,9 @@ export default async function DashboardPage() {
 
               <ThemeToggle />
 
+              {/* NOTIFICATION BELL */}
+              <NotificationBell />
+
               <div className="hidden text-right sm:block">
                 <p className="text-sm font-medium text-white">
                   {user.name}
@@ -278,7 +283,9 @@ export default async function DashboardPage() {
               </div>
 
             </div>
+
           </div>
+
         </div>
       </nav>
 
@@ -877,8 +884,11 @@ export default async function DashboardPage() {
             </div>
 
           </section>
+
         </div>
+
       </div>
+
     </main>
   );
 }

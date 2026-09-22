@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import Document from "@/models/Document";
+import Notification from "@/models/Notification";
 import { extractText } from "unpdf";
 
 export async function POST(request) {
@@ -50,8 +51,7 @@ export async function POST(request) {
       );
     }
 
-    const maxSize =
-      10 * 1024 * 1024;
+    const maxSize = 10 * 1024 * 1024;
 
     if (file.size <= 0) {
       return Response.json(
@@ -69,8 +69,7 @@ export async function POST(request) {
       return Response.json(
         {
           success: false,
-          message:
-            "PDF size must be less than 10 MB.",
+          message: "PDF size must be less than 10 MB.",
         },
         {
           status: 400,
@@ -78,27 +77,23 @@ export async function POST(request) {
       );
     }
 
-    const arrayBuffer =
-      await file.arrayBuffer();
+    const arrayBuffer = await file.arrayBuffer();
 
-    const buffer =
-      new Uint8Array(arrayBuffer);
+    const buffer = new Uint8Array(arrayBuffer);
 
     /*
       Basic PDF signature validation.
       A real PDF normally begins with %PDF-
     */
-    const header =
-      new TextDecoder().decode(
-        buffer.slice(0, 5)
-      );
+    const header = new TextDecoder().decode(
+      buffer.slice(0, 5)
+    );
 
     if (header !== "%PDF-") {
       return Response.json(
         {
           success: false,
-          message:
-            "Invalid PDF file.",
+          message: "Invalid PDF file.",
         },
         {
           status: 400,
@@ -106,21 +101,17 @@ export async function POST(request) {
       );
     }
 
-    const result =
-      await extractText(buffer);
+    const result = await extractText(buffer);
 
     let extractedText = "";
 
     if (Array.isArray(result.text)) {
-      extractedText =
-        result.text.join("\n");
+      extractedText = result.text.join("\n");
     } else {
-      extractedText =
-        result.text || "";
+      extractedText = result.text || "";
     }
 
-    extractedText =
-      extractedText.trim();
+    extractedText = extractedText.trim();
 
     if (!extractedText) {
       return Response.json(
@@ -139,43 +130,58 @@ export async function POST(request) {
       Prevent extremely large extracted
       text from being stored.
     */
-    const maxTextLength =
-      500000;
+    const maxTextLength = 500000;
 
-    if (
-      extractedText.length >
-      maxTextLength
-    ) {
-      extractedText =
-        extractedText.slice(
-          0,
-          maxTextLength
-        );
+    if (extractedText.length > maxTextLength) {
+      extractedText = extractedText.slice(
+        0,
+        maxTextLength
+      );
     }
 
     await connectDB();
 
-    const document =
-      await Document.create({
+    const document = await Document.create({
+      userId: user.userId,
+      name: file.name,
+      text: extractedText,
+      size: file.size,
+      type: file.type,
+    });
+
+    /*
+      Create notification after successful
+      document upload.
+    */
+    try {
+      await Notification.create({
         userId: user.userId,
-        name: file.name,
-        text: extractedText,
-        size: file.size,
-        type: file.type,
+        title: "Document Uploaded 📄",
+        message: `"${file.name}" has been uploaded successfully and is ready for AI processing.`,
+        type: "document",
+        link: "/documents",
       });
+    } catch (notificationError) {
+      /*
+        Notification failure should NOT
+        make the document upload fail.
+      */
+      console.error(
+        "DOCUMENT UPLOAD NOTIFICATION ERROR:",
+        notificationError
+      );
+    }
 
     return Response.json(
       {
         success: true,
-        message:
-          "PDF uploaded successfully.",
+        message: "PDF uploaded successfully.",
         document: {
           id: document._id,
           name: document.name,
           size: document.size,
           type: document.type,
-          createdAt:
-            document.createdAt,
+          createdAt: document.createdAt,
         },
       },
       {
@@ -191,8 +197,7 @@ export async function POST(request) {
     return Response.json(
       {
         success: false,
-        message:
-          "Failed to upload PDF.",
+        message: "Failed to upload PDF.",
       },
       {
         status: 500,
@@ -203,15 +208,13 @@ export async function POST(request) {
 
 export async function GET() {
   try {
-    const user =
-      await getCurrentUser();
+    const user = await getCurrentUser();
 
     if (!user) {
       return Response.json(
         {
           success: false,
-          message:
-            "Unauthorized. Please login first.",
+          message: "Unauthorized. Please login first.",
         },
         {
           status: 401,
@@ -221,15 +224,14 @@ export async function GET() {
 
     await connectDB();
 
-    const documents =
-      await Document.find({
-        userId: user.userId,
+    const documents = await Document.find({
+      userId: user.userId,
+    })
+      .select("-text")
+      .sort({
+        createdAt: -1,
       })
-        .select("-text")
-        .sort({
-          createdAt: -1,
-        })
-        .lean();
+      .lean();
 
     return Response.json({
       success: true,
@@ -244,8 +246,7 @@ export async function GET() {
     return Response.json(
       {
         success: false,
-        message:
-          "Failed to fetch documents.",
+        message: "Failed to fetch documents.",
       },
       {
         status: 500,

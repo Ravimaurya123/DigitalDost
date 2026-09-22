@@ -50,6 +50,11 @@ export default function DashboardSidebar() {
         label: "Profile",
     },
     {
+        href: "/notifications",
+        icon: "🔔",
+        label: "Notifications",
+    },
+    {
       href: "/settings",
       icon: "⚙️",
       label: "Settings",

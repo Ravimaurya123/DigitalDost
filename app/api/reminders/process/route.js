@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Reminder from "@/models/Reminder";
 import User from "@/models/User";
+import Notification from "@/models/Notification";
 import { sendReminderEmail } from "@/lib/email";
 
 export async function GET(request) {
@@ -46,6 +47,7 @@ export async function GET(request) {
 
     let processed = 0;
     let emailed = 0;
+    let notificationsCreated = 0;
     let failed = 0;
 
     // -----------------------------
@@ -53,7 +55,7 @@ export async function GET(request) {
     // -----------------------------
     for (const reminder of reminders) {
       try {
-        // Find the reminder owner
+        // Find reminder owner
         const user = await User.findById(reminder.userId);
 
         if (!user) {
@@ -61,8 +63,6 @@ export async function GET(request) {
             `User not found for reminder: ${reminder._id}`
           );
 
-          // No user means email cannot be sent.
-          // Mark as notified so it doesn't retry forever.
           reminder.notified = true;
           await reminder.save();
 
@@ -84,14 +84,28 @@ export async function GET(request) {
             reminderDate: reminder.reminderDate,
           });
 
-          // Only mark email sent AFTER successful email
           reminder.emailSent = true;
 
           emailed++;
         }
 
         // -----------------------------
-        // 6. Mark Notification Complete
+        // 6. Create In-App Notification
+        // -----------------------------
+        await Notification.create({
+          userId: reminder.userId,
+          title: "Reminder Due 🔔",
+          message: reminder.description
+            ? `${reminder.title} — ${reminder.description}`
+            : reminder.title,
+          type: "reminder",
+          link: "/reminders",
+        });
+
+        notificationsCreated++;
+
+        // -----------------------------
+        // 7. Mark Reminder Processed
         // -----------------------------
         reminder.notified = true;
 
@@ -106,14 +120,13 @@ export async function GET(request) {
           error
         );
 
-        // IMPORTANT:
-        // Do NOT set notified=true when email fails.
-        // Cron can retry it on the next run.
+        // Do not mark notified=true on failure.
+        // Cron can retry on the next run.
       }
     }
 
     // -----------------------------
-    // 7. Response
+    // 8. Response
     // -----------------------------
     return NextResponse.json(
       {
@@ -122,6 +135,7 @@ export async function GET(request) {
         found: reminders.length,
         processed,
         emailed,
+        notificationsCreated,
         failed,
       },
       { status: 200 }

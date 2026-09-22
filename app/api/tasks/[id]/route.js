@@ -1,5 +1,6 @@
 import connectDB from "@/lib/mongodb";
 import Task from "@/models/Task";
+import Notification from "@/models/Notification";
 import { getCurrentUser } from "@/lib/auth";
 import mongoose from "mongoose";
 
@@ -56,6 +57,22 @@ export async function PATCH(request, { params }) {
       updateData.dueDate = body.dueDate || null;
     }
 
+    // Get old task first
+    const oldTask = await Task.findOne({
+      _id: id,
+      userId: user.userId,
+    });
+
+    if (!oldTask) {
+      return Response.json(
+        {
+          success: false,
+          message: "Task not found",
+        },
+        { status: 404 }
+      );
+    }
+
     const task = await Task.findOneAndUpdate(
       {
         _id: id,
@@ -78,6 +95,18 @@ export async function PATCH(request, { params }) {
         },
         { status: 404 }
       );
+    }
+
+    // Create notification only when task changes
+    // from incomplete → completed
+    if (body.completed === true && oldTask.completed === false) {
+      await Notification.create({
+        userId: user.userId,
+        title: "Task Completed ✅",
+        message: `You completed the task "${task.title}".`,
+        type: "task",
+        link: "/tasks",
+      });
     }
 
     return Response.json({
