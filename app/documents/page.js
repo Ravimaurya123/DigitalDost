@@ -18,9 +18,22 @@ export default function DocumentsPage() {
   const [answer, setAnswer] = useState("");
   const [asking, setAsking] = useState(false);
 
+  // ==========================================
+  // DOCUMENT INTELLIGENCE STATES
+  // ==========================================
+
+  const [intelligenceResult, setIntelligenceResult] = useState("");
+  const [intelligenceType, setIntelligenceType] = useState("");
+  const [intelligenceLoading, setIntelligenceLoading] = useState(false);
+  const [mcqs, setMcqs] = useState([]);
+
   const [search, setSearch] = useState("");
 
   const fileInputRef = useRef(null);
+
+  // ==========================================
+  // FETCH DOCUMENTS
+  // ==========================================
 
   async function fetchDocuments() {
     try {
@@ -50,6 +63,10 @@ export default function DocumentsPage() {
     fetchDocuments();
   }, []);
 
+  // ==========================================
+  // FILE CHANGE
+  // ==========================================
+
   function handleFileChange(event) {
     const selectedFile = event.target.files?.[0];
 
@@ -75,6 +92,10 @@ export default function DocumentsPage() {
 
     setFile(selectedFile);
   }
+
+  // ==========================================
+  // UPLOAD PDF
+  // ==========================================
 
   async function handleUpload(event) {
     event.preventDefault();
@@ -120,6 +141,10 @@ export default function DocumentsPage() {
       setLoading(false);
     }
   }
+
+  // ==========================================
+  // EXISTING ASK AI
+  // ==========================================
 
   async function handleAskAI() {
     setError("");
@@ -167,11 +192,77 @@ export default function DocumentsPage() {
     }
   }
 
+  // ==========================================
+  // DOCUMENT INTELLIGENCE
+  // ==========================================
+
+  async function handleDocumentAI(action) {
+    if (!selectedDocument) {
+      setError("Please select a document.");
+      return;
+    }
+
+    setError("");
+    setMessage("");
+    setIntelligenceResult("");
+    setMcqs([]);
+    setIntelligenceType(action);
+
+    try {
+      setIntelligenceLoading(true);
+
+      const response = await fetch(
+        `/api/documents/${selectedDocument._id}/intelligence`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(
+          data.message || "Document AI request failed."
+        );
+        return;
+      }
+
+      if (action === "mcqs") {
+        setMcqs(data.result || []);
+      } else {
+        setIntelligenceResult(data.result || "");
+      }
+    } catch (error) {
+      console.error("DOCUMENT AI ERROR:", error);
+
+      setError(
+        "Something went wrong while processing the document."
+      );
+    } finally {
+      setIntelligenceLoading(false);
+    }
+  }
+
+  // ==========================================
+  // OPEN AI PANEL
+  // ==========================================
+
   function openAskAI(document) {
     setSelectedDocument(document);
     setQuestion("");
     setAnswer("");
     setError("");
+
+    setIntelligenceResult("");
+    setIntelligenceType("");
+    setIntelligenceLoading(false);
+    setMcqs([]);
 
     window.scrollTo({
       top: 0,
@@ -179,12 +270,25 @@ export default function DocumentsPage() {
     });
   }
 
+  // ==========================================
+  // CLOSE AI PANEL
+  // ==========================================
+
   function closeAskAI() {
     setSelectedDocument(null);
     setQuestion("");
     setAnswer("");
     setError("");
+
+    setIntelligenceResult("");
+    setIntelligenceType("");
+    setIntelligenceLoading(false);
+    setMcqs([]);
   }
+
+  // ==========================================
+  // FILE SIZE
+  // ==========================================
 
   function formatFileSize(bytes) {
     if (!bytes) return "0 KB";
@@ -197,6 +301,10 @@ export default function DocumentsPage() {
 
     return `${(bytes / 1024).toFixed(1)} KB`;
   }
+
+  // ==========================================
+  // DATE
+  // ==========================================
 
   function formatDate(date) {
     if (!date) return "";
@@ -214,6 +322,7 @@ export default function DocumentsPage() {
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       {/* HEADER */}
+
       <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
           <Link
@@ -234,6 +343,7 @@ export default function DocumentsPage() {
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-10">
         {/* PAGE HEADER */}
+
         <div className="mb-8">
           <p className="text-sm font-medium uppercase tracking-wider text-cyan-400">
             Document Assistant
@@ -244,12 +354,13 @@ export default function DocumentsPage() {
           </h1>
 
           <p className="mt-2 max-w-2xl text-slate-400">
-            Upload your PDFs and use AI to understand and ask questions
-            about them.
+            Upload your PDFs and use AI to understand and ask
+            questions about them.
           </p>
         </div>
 
         {/* STATS */}
+
         <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatCard
             icon="📄"
@@ -279,6 +390,7 @@ export default function DocumentsPage() {
         </div>
 
         {/* GLOBAL ERROR */}
+
         {error && (
           <div className="dd-card mb-5 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
             <div className="flex items-start gap-3">
@@ -289,6 +401,7 @@ export default function DocumentsPage() {
         )}
 
         {/* SUCCESS */}
+
         {message && (
           <div className="dd-card mb-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-400">
             <div className="flex items-center gap-3">
@@ -298,7 +411,10 @@ export default function DocumentsPage() {
           </div>
         )}
 
-        {/* ASK AI PANEL */}
+        {/* ==========================================
+            AI DOCUMENT PANEL
+        ========================================== */}
+
         {selectedDocument && (
           <section className="dd-card mb-8 overflow-hidden rounded-3xl border border-cyan-400/20 bg-cyan-400/[0.03]">
             <div className="border-b border-white/10 bg-white/[0.03] px-5 py-5 sm:px-6">
@@ -330,6 +446,10 @@ export default function DocumentsPage() {
             </div>
 
             <div className="p-5 sm:p-6">
+              {/* ==========================================
+                  ASK QUESTION
+              ========================================== */}
+
               <label
                 htmlFor="document-question"
                 className="mb-2 block text-sm font-medium text-slate-300"
@@ -340,7 +460,9 @@ export default function DocumentsPage() {
               <textarea
                 id="document-question"
                 value={question}
-                onChange={(event) => setQuestion(event.target.value)}
+                onChange={(event) =>
+                  setQuestion(event.target.value)
+                }
                 placeholder="Example: What is this document about?"
                 rows={4}
                 className="dd-input w-full resize-none rounded-2xl border border-white/10 bg-slate-900 px-4 py-4 text-sm leading-6 text-white outline-none placeholder:text-slate-600"
@@ -371,6 +493,7 @@ export default function DocumentsPage() {
               </div>
 
               {/* AI ANSWER */}
+
               {answer && (
                 <div className="dd-card mt-6 rounded-2xl border border-emerald-400/10 bg-emerald-400/[0.04] p-5">
                   <div className="mb-4 flex items-center gap-3">
@@ -394,13 +517,253 @@ export default function DocumentsPage() {
                   </p>
                 </div>
               )}
+
+              {/* ==========================================
+                  DOCUMENT INTELLIGENCE
+              ========================================== */}
+
+              <div className="mt-8 border-t border-white/10 pt-8">
+                <div className="mb-5">
+                  <p className="text-xs font-medium uppercase tracking-wider text-cyan-400">
+                    AI Tools
+                  </p>
+
+                  <h3 className="mt-1 text-xl font-semibold text-white">
+                    ✨ Document Intelligence
+                  </h3>
+
+                  <p className="mt-1 text-sm text-slate-400">
+                    Let Gemini analyze this PDF in different ways.
+                  </p>
+                </div>
+
+                {/* AI ACTION BUTTONS */}
+
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {/* SUMMARIZE */}
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleDocumentAI("summarize")
+                    }
+                    disabled={intelligenceLoading}
+                    className="dd-button rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <div className="dd-hover-icon mb-3 text-2xl">
+                      📝
+                    </div>
+
+                    <p className="font-semibold text-white">
+                      Summarize
+                    </p>
+
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                      Get a clear summary of the document.
+                    </p>
+                  </button>
+
+                  {/* KEY POINTS */}
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleDocumentAI("keypoints")
+                    }
+                    disabled={intelligenceLoading}
+                    className="dd-button rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <div className="dd-hover-icon mb-3 text-2xl">
+                      🔑
+                    </div>
+
+                    <p className="font-semibold text-white">
+                      Key Points
+                    </p>
+
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                      Extract the most important points.
+                    </p>
+                  </button>
+
+                  {/* MCQS */}
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleDocumentAI("mcqs")
+                    }
+                    disabled={intelligenceLoading}
+                    className="dd-button rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <div className="dd-hover-icon mb-3 text-2xl">
+                      🧠
+                    </div>
+
+                    <p className="font-semibold text-white">
+                      Generate MCQs
+                    </p>
+
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                      Create practice questions from PDF.
+                    </p>
+                  </button>
+
+                  {/* NOTES */}
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleDocumentAI("notes")
+                    }
+                    disabled={intelligenceLoading}
+                    className="dd-button rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <div className="dd-hover-icon mb-3 text-2xl">
+                      📒
+                    </div>
+
+                    <p className="font-semibold text-white">
+                      Generate Notes
+                    </p>
+
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                      Create easy-to-revise study notes.
+                    </p>
+                  </button>
+                </div>
+
+                {/* LOADING */}
+
+                {intelligenceLoading && (
+                  <div className="mt-6 rounded-2xl border border-cyan-400/20 bg-cyan-400/[0.05] p-5">
+                    <div className="flex items-center gap-3">
+                      <div className="animate-spin text-xl">
+                        ⏳
+                      </div>
+
+                      <div>
+                        <p className="font-medium text-cyan-400">
+                          Gemini is analyzing your document...
+                        </p>
+
+                        <p className="mt-1 text-xs text-slate-500">
+                          Please wait a few seconds.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* NORMAL AI RESULT */}
+
+                {!intelligenceLoading &&
+                  intelligenceResult && (
+                    <div className="mt-6 rounded-2xl border border-cyan-400/20 bg-cyan-400/[0.04] p-5">
+                      <div className="mb-4 flex items-center gap-3">
+                        <div className="dd-hover-icon flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/10">
+                          🤖
+                        </div>
+
+                        <div>
+                          <h3 className="font-semibold text-white">
+                            {intelligenceType === "summarize"
+                              ? "Document Summary"
+                              : intelligenceType ===
+                                "keypoints"
+                              ? "Key Points"
+                              : "Generated Notes"}
+                          </h3>
+
+                          <p className="text-xs text-slate-500">
+                            Generated from your uploaded document
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="whitespace-pre-wrap text-sm leading-7 text-slate-300">
+                        {intelligenceResult}
+                      </div>
+                    </div>
+                  )}
+
+                {/* MCQs */}
+
+                {!intelligenceLoading &&
+                  mcqs.length > 0 && (
+                    <div className="mt-6 space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="dd-hover-icon flex h-10 w-10 items-center justify-center rounded-xl bg-purple-400/10">
+                          🧠
+                        </div>
+
+                        <div>
+                          <h3 className="font-semibold text-white">
+                            Generated MCQs
+                          </h3>
+
+                          <p className="text-xs text-slate-500">
+                            Practice questions based on your PDF
+                          </p>
+                        </div>
+                      </div>
+
+                      {mcqs.map((mcq, index) => (
+                        <div
+                          key={index}
+                          className="dd-card rounded-2xl border border-white/10 bg-white/[0.04] p-5"
+                        >
+                          <p className="font-semibold leading-6 text-white">
+                            {index + 1}. {mcq.question}
+                          </p>
+
+                          <div className="mt-4 grid gap-2">
+                            {["A", "B", "C", "D"].map(
+                              (option) => (
+                                <div
+                                  key={option}
+                                  className={`rounded-xl border p-3 text-sm ${
+                                    mcq.answer === option
+                                      ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300"
+                                      : "border-white/10 bg-white/[0.03] text-slate-300"
+                                  }`}
+                                >
+                                  <span className="font-semibold">
+                                    {option}.
+                                  </span>{" "}
+                                  {mcq.options?.[option]}
+                                </div>
+                              )
+                            )}
+                          </div>
+
+                          {mcq.explanation && (
+                            <div className="mt-4 rounded-xl border border-cyan-400/10 bg-cyan-400/[0.05] p-3">
+                              <p className="text-xs font-semibold text-cyan-400">
+                                Explanation
+                              </p>
+
+                              <p className="mt-1 text-sm leading-6 text-slate-400">
+                                {mcq.explanation}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+              </div>
             </div>
           </section>
         )}
 
-        {/* UPLOAD + DOCUMENTS */}
+        {/* ==========================================
+            UPLOAD + DOCUMENTS
+        ========================================== */}
+
         <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
           {/* UPLOAD */}
+
           <section className="dd-card h-fit rounded-3xl border border-white/10 bg-white/[0.04] p-5 sm:p-6">
             <div className="mb-5">
               <div className="dd-hover-icon mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-400/10 text-2xl">
@@ -412,12 +775,15 @@ export default function DocumentsPage() {
               </h2>
 
               <p className="mt-1 text-sm leading-6 text-slate-500">
-                Upload a PDF and DigitalDost will extract its text for
-                AI-powered questions.
+                Upload a PDF and DigitalDost will extract its
+                text for AI-powered questions.
               </p>
             </div>
 
-            <form onSubmit={handleUpload} className="space-y-4">
+            <form
+              onSubmit={handleUpload}
+              className="space-y-4"
+            >
               <label
                 htmlFor="pdf-file"
                 className="dd-card flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-900/60 px-5 py-8 text-center"
@@ -469,12 +835,15 @@ export default function DocumentsPage() {
                 disabled={loading || !file}
                 className="dd-button w-full rounded-xl bg-cyan-500 px-5 py-3 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {loading ? "Uploading..." : "📤 Upload PDF"}
+                {loading
+                  ? "Uploading..."
+                  : "📤 Upload PDF"}
               </button>
             </form>
           </section>
 
           {/* DOCUMENT LIST */}
+
           <section>
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -496,10 +865,13 @@ export default function DocumentsPage() {
             </div>
 
             {/* SEARCH */}
+
             <div className="mb-5">
               <input
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) =>
+                  setSearch(e.target.value)
+                }
                 placeholder="🔍 Search documents..."
                 className="dd-input w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600"
               />
@@ -540,15 +912,22 @@ export default function DocumentsPage() {
                           </h3>
 
                           <p className="mt-1 text-xs text-slate-500">
-                            {formatFileSize(document.size)} •{" "}
-                            {formatDate(document.createdAt)}
+                            {formatFileSize(
+                              document.size
+                            )}{" "}
+                            •{" "}
+                            {formatDate(
+                              document.createdAt
+                            )}
                           </p>
                         </div>
                       </div>
 
                       <button
                         type="button"
-                        onClick={() => openAskAI(document)}
+                        onClick={() =>
+                          openAskAI(document)
+                        }
                         className="dd-button w-full rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-5 py-3 text-sm font-medium text-cyan-400 sm:w-auto"
                       >
                         🤖 Ask AI

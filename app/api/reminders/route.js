@@ -1,6 +1,11 @@
 import { getCurrentUser } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import Reminder from "@/models/Reminder";
+import {
+  cleanString,
+  validateRequiredString,
+  safeDate,
+} from "@/lib/validation";
 
 export async function POST(request) {
   try {
@@ -18,13 +23,52 @@ export async function POST(request) {
 
     const body = await request.json();
 
-    const { title, description, reminderDate } = body;
+    const titleValidation = validateRequiredString(
+      body.title,
+      "Title",
+      200
+    );
 
-    if (!title || !reminderDate) {
+    if (!titleValidation.valid) {
       return Response.json(
         {
           success: false,
-          message: "Title and reminder date are required",
+          message: titleValidation.message,
+        },
+        { status: 400 }
+      );
+    }
+
+    const description = cleanString(body.description || "");
+
+    if (description.length > 1000) {
+      return Response.json(
+        {
+          success: false,
+          message: "Description must be less than 1000 characters.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const reminderDate = safeDate(body.reminderDate);
+
+    if (!reminderDate) {
+      return Response.json(
+        {
+          success: false,
+          message: "A valid reminder date is required.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Prevent creating reminders with an invalid/expired date.
+    if (reminderDate.getTime() <= Date.now()) {
+      return Response.json(
+        {
+          success: false,
+          message: "Reminder date must be in the future.",
         },
         { status: 400 }
       );
@@ -34,9 +78,16 @@ export async function POST(request) {
 
     const reminder = await Reminder.create({
       userId: user.userId,
-      title,
-      description: description || "",
+      title: titleValidation.value,
+      description,
       reminderDate,
+      completed: false,
+      notified: false,
+      emailSent: false,
+      emailNotification:
+        typeof body.emailNotification === "boolean"
+          ? body.emailNotification
+          : true,
     });
 
     return Response.json(
@@ -78,9 +129,11 @@ export async function GET() {
 
     const reminders = await Reminder.find({
       userId: user.userId,
-    }).sort({
-      reminderDate: 1,
-    });
+    })
+      .sort({
+        reminderDate: 1,
+      })
+      .lean();
 
     return Response.json({
       success: true,
