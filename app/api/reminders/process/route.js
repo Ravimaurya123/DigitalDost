@@ -1,4 +1,4 @@
-import { User } from "@/models/User";
+import User from "@/models/User";
 import connectDB from "@/lib/mongodb";
 import Reminder from "@/models/Reminder";
 import { sendReminderEmail } from "@/lib/email";
