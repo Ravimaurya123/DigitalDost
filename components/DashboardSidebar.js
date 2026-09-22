@@ -49,6 +49,11 @@ export default function DashboardSidebar() {
         label: "Calendar",
     },
     {
+        href: "/profile",
+        icon: "👤",
+        label: "Profile",
+    },
+    {
       href: "/settings",
       icon: "⚙️",
       label: "Settings",
