@@ -246,26 +246,32 @@ export default async function DashboardPage() {
       <nav className="border-b border-slate-800 bg-slate-950">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6">
 
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center justify-between gap-2 sm:gap-4">
 
             {/* LOGO */}
 
             <a
               href="/dashboard"
-              className="dd-link text-xl font-bold text-cyan-400 sm:text-2xl"
+              className="dd-link shrink-0 text-lg font-bold text-cyan-400 sm:text-2xl"
             >
               DigitalDost
             </a>
 
             {/* RIGHT SIDE */}
 
-            <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
 
-              <ThemeToggle />
+              {/* THEME */}
+              <div className="shrink-0">
+                <ThemeToggle />
+              </div>
 
-              {/* NOTIFICATION BELL */}
-              <NotificationBell />
+              {/* NOTIFICATIONS */}
+              <div className="shrink-0">
+                <NotificationBell />
+              </div>
 
+              {/* USER INFO - DESKTOP ONLY */}
               <div className="hidden text-right sm:block">
                 <p className="text-sm font-medium text-white">
                   {user.name}
@@ -276,13 +282,16 @@ export default async function DashboardPage() {
                 </p>
               </div>
 
-              <div className="dd-hover-icon flex h-9 w-9 items-center justify-center rounded-full bg-cyan-500 font-bold text-slate-950 sm:h-10 sm:w-10">
+              {/* AVATAR */}
+              <div className="dd-hover-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cyan-500 font-bold text-slate-950 sm:h-10 sm:w-10">
                 {user.name
                   ?.charAt(0)
                   ?.toUpperCase()}
               </div>
 
             </div>
+
+
 
           </div>
 
@@ -602,11 +611,10 @@ export default async function DashboardPage() {
                             <div className="min-w-0">
 
                               <h3
-                                className={`break-words font-semibold ${
-                                  task.completed
+                                className={`break-words font-semibold ${task.completed
                                     ? "text-slate-500 line-through"
                                     : "text-white"
-                                }`}
+                                  }`}
                               >
                                 {task.title}
                               </h3>
@@ -620,11 +628,10 @@ export default async function DashboardPage() {
                             </div>
 
                             <span
-                              className={`shrink-0 rounded-full px-2.5 py-1 text-xs ${
-                                task.completed
+                              className={`shrink-0 rounded-full px-2.5 py-1 text-xs ${task.completed
                                   ? "bg-green-500/10 text-green-400"
                                   : "bg-yellow-500/10 text-yellow-400"
-                              }`}
+                                }`}
                             >
                               {task.completed
                                 ? "Completed"
@@ -709,13 +716,12 @@ export default async function DashboardPage() {
 
                           <div
                             key={reminder._id.toString()}
-                            className={`dd-card rounded-xl border p-4 ${
-                              status === "Overdue"
+                            className={`dd-card rounded-xl border p-4 ${status === "Overdue"
                                 ? "border-red-500/30 bg-red-500/5"
                                 : status === "Today"
-                                ? "border-cyan-500/30 bg-cyan-500/5"
-                                : "border-slate-700 bg-slate-800/60"
-                            }`}
+                                  ? "border-cyan-500/30 bg-cyan-500/5"
+                                  : "border-slate-700 bg-slate-800/60"
+                              }`}
                           >
 
                             <div className="flex items-start justify-between gap-3">
@@ -742,13 +748,12 @@ export default async function DashboardPage() {
                               </div>
 
                               <span
-                                className={`shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-xs ${
-                                  status === "Overdue"
+                                className={`shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-xs ${status === "Overdue"
                                     ? "bg-red-500/10 text-red-400"
                                     : status === "Today"
-                                    ? "bg-cyan-500/10 text-cyan-400"
-                                    : "bg-green-500/10 text-green-400"
-                                }`}
+                                      ? "bg-cyan-500/10 text-cyan-400"
+                                      : "bg-green-500/10 text-green-400"
+                                  }`}
                               >
                                 {status}
                               </span>
