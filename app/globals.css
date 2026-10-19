@@ -729,3 +729,163 @@ table {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* ==========================================
+   DIGITALDOST 2.0 — PREMIUM UI FOUNDATION
+   Append at the end of app/globals.css
+========================================== */
+
+:root {
+  --dd-navy: #070b18;
+  --dd-surface: rgba(15, 23, 42, 0.82);
+  --dd-border: rgba(148, 163, 184, 0.16);
+  --dd-cyan: #22d3ee;
+  --dd-cyan-soft: rgba(34, 211, 238, 0.12);
+  --dd-glow: 0 0 28px rgba(34, 211, 238, 0.08);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 88px;
+}
+
+/* Better page rendering */
+body {
+  min-height: 100vh;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Premium card borders and depth */
+.dd-card {
+  border-color: var(--dd-border);
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  transition:
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms ease;
+}
+
+/* Subtle hover effect for interactive cards */
+a.dd-card:hover,
+button.dd-card:hover,
+.dd-card.dd-link:hover {
+  border-color: rgba(34, 211, 238, 0.35);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.2),
+    0 0 22px rgba(34, 211, 238, 0.06);
+}
+
+/* Button interactions without changing button colors */
+.dd-button {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease;
+}
+
+.dd-button:active {
+  transform: scale(0.98);
+}
+
+.dd-button:focus-visible,
+.dd-link:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--dd-cyan);
+  outline-offset: 3px;
+}
+
+/* Subtle cyan icon interaction */
+.dd-hover-icon {
+  transition:
+    transform 200ms ease,
+    filter 200ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a:hover .dd-hover-icon,
+  button:hover .dd-hover-icon,
+  .dd-link:hover .dd-hover-icon {
+    filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.28));
+  }
+}
+
+/* Cleaner scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #334155 #080d1a;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #080d1a;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #0891b2;
+}
+
+/* Prevent long text from breaking layouts */
+.dd-card,
+main,
+section {
+  min-width: 0;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+pre,
+code {
+  overflow-wrap: anywhere;
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Mobile interaction polish */
+@media (max-width: 640px) {
+  .dd-card {
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12);
+  }
+
+  a.dd-card:hover,
+  button.dd-card:hover,
+  .dd-card.dd-link:hover {
+    transform: none;
+  }
+}
