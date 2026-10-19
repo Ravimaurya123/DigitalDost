@@ -194,13 +194,15 @@ export default async function DashboardPage() {
   // ==========================================
 
   function formatDate(date) {
-    return new Date(date).toLocaleString(
-      "en-IN",
-      {
-        dateStyle: "medium",
-        timeStyle: "short",
-      }
-    );
+    return new Date(date).toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
   }
 
   // ==========================================
@@ -612,8 +614,8 @@ export default async function DashboardPage() {
 
                               <h3
                                 className={`break-words font-semibold ${task.completed
-                                    ? "text-slate-500 line-through"
-                                    : "text-white"
+                                  ? "text-slate-500 line-through"
+                                  : "text-white"
                                   }`}
                               >
                                 {task.title}
@@ -629,8 +631,8 @@ export default async function DashboardPage() {
 
                             <span
                               className={`shrink-0 rounded-full px-2.5 py-1 text-xs ${task.completed
-                                  ? "bg-green-500/10 text-green-400"
-                                  : "bg-yellow-500/10 text-yellow-400"
+                                ? "bg-green-500/10 text-green-400"
+                                : "bg-yellow-500/10 text-yellow-400"
                                 }`}
                             >
                               {task.completed
@@ -717,10 +719,10 @@ export default async function DashboardPage() {
                           <div
                             key={reminder._id.toString()}
                             className={`dd-card rounded-xl border p-4 ${status === "Overdue"
-                                ? "border-red-500/30 bg-red-500/5"
-                                : status === "Today"
-                                  ? "border-cyan-500/30 bg-cyan-500/5"
-                                  : "border-slate-700 bg-slate-800/60"
+                              ? "border-red-500/30 bg-red-500/5"
+                              : status === "Today"
+                                ? "border-cyan-500/30 bg-cyan-500/5"
+                                : "border-slate-700 bg-slate-800/60"
                               }`}
                           >
 
@@ -749,10 +751,10 @@ export default async function DashboardPage() {
 
                               <span
                                 className={`shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-xs ${status === "Overdue"
-                                    ? "bg-red-500/10 text-red-400"
-                                    : status === "Today"
-                                      ? "bg-cyan-500/10 text-cyan-400"
-                                      : "bg-green-500/10 text-green-400"
+                                  ? "bg-red-500/10 text-red-400"
+                                  : status === "Today"
+                                    ? "bg-cyan-500/10 text-cyan-400"
+                                    : "bg-green-500/10 text-green-400"
                                   }`}
                               >
                                 {status}
