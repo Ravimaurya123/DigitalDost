@@ -1,3 +1,4 @@
+
 import { getCurrentUser } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import Reminder from "@/models/Reminder";
@@ -7,16 +8,60 @@ import {
   safeDate,
 } from "@/lib/validation";
 
+// datetime-local values are interpreted as Indian Standard Time (IST).
+function parseReminderDate(value) {
+  if (typeof value !== "string") {
+    return safeDate(value);
+  }
+
+  const match = value.match(
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/
+  );
+
+  // Preserve support for other date formats handled by safeDate.
+  if (!match) {
+    return safeDate(value);
+  }
+
+  const [, y, mo, d, h, mi, s = "0"] = match;
+
+  const year = Number(y);
+  const month = Number(mo);
+  const day = Number(d);
+  const hour = Number(h);
+  const minute = Number(mi);
+  const second = Number(s);
+
+  // Validate the date and time components before conversion.
+  const localAsUTC = new Date(
+    Date.UTC(year, month - 1, day, hour, minute, second)
+  );
+
+  if (
+    localAsUTC.getUTCFullYear() !== year ||
+    localAsUTC.getUTCMonth() !== month - 1 ||
+    localAsUTC.getUTCDate() !== day ||
+    localAsUTC.getUTCHours() !== hour ||
+    localAsUTC.getUTCMinutes() !== minute ||
+    localAsUTC.getUTCSeconds() !== second
+  ) {
+    return null;
+  }
+
+  // IST = UTC + 5 hours 30 minutes.
+  // Convert the selected Indian local time into its UTC timestamp.
+  return new Date(
+    localAsUTC.getTime() - 330 * 60 * 1000
+  );
+}
+
 export async function POST(request) {
   try {
     const user = await getCurrentUser();
 
     if (!user) {
       return Response.json(
-        {
-          success: false,
-          message: "Unauthorized",
-        },
+        { success: false, message: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -51,19 +96,18 @@ export async function POST(request) {
       );
     }
 
-    const reminderDate = safeDate(body.reminderDate);
+    const reminderDate = parseReminderDate(body.reminderDate);
 
-    if (!reminderDate) {
+    if (!reminderDate || Number.isNaN(reminderDate.getTime())) {
       return Response.json(
         {
           success: false,
-          message: "A valid reminder date is required.",
+          message: "A valid reminder date and time is required.",
         },
         { status: 400 }
       );
     }
 
-    // Prevent creating reminders with an invalid/expired date.
     if (reminderDate.getTime() <= Date.now()) {
       return Response.json(
         {
@@ -117,10 +161,7 @@ export async function GET() {
 
     if (!user) {
       return Response.json(
-        {
-          success: false,
-          message: "Unauthorized",
-        },
+        { success: false, message: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -130,9 +171,7 @@ export async function GET() {
     const reminders = await Reminder.find({
       userId: user.userId,
     })
-      .sort({
-        reminderDate: 1,
-      })
+      .sort({ reminderDate: 1 })
       .lean();
 
     return Response.json({

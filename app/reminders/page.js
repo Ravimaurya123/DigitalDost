@@ -174,12 +174,14 @@ export default function RemindersPage() {
     );
   }
 
-  function formatDate(date) {
-    return new Date(date).toLocaleString("en-IN", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
-  }
+  
+function formatDate(date) {
+  return new Date(date).toLocaleString("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Asia/Kolkata",
+  });
+}
 
   const filteredReminders = reminders.filter(
     (reminder) => {
